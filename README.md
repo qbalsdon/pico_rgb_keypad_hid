@@ -9,7 +9,7 @@
   1. Create a `lib/` directory on your PICO
   1. Copy all `lib/adafruit_hid` folder to `CIRCUITPY/lib/`
   1. Copy the `lib/adafruit_dotstar.py` file to `CIRCUITPY/lib/adafruit_dotstar.py`
-1. In [Thonny][THONNY], create and new file like [`code.py`][CODEPY] and save
+1. In [Thonny][THONNY], create and new file like [`code.py`][CODEPY] and save it to the PICO directory
 
 ![Structure](images/directory.png)
 
