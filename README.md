@@ -17,5 +17,5 @@
 
 [UF2]: https://circuitpython.org/board/raspberry_pi_pico/
 [BUNDLE_FILES]: https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases
-[CODEPY]: https://gist.github.com/wildestpixel/9a69ef420657af3a4aafba2804d1f8e8
+[CODEPY]: https://gist.github.com/wildestpixel/6b684b8bc886392f7c4c57015fab3d97
 [THONNY]: https://thonny.org/
