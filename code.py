@@ -1,3 +1,5 @@
+#https://github.com/adafruit/Adafruit_CircuitPython_HID/blob/master/adafruit_hid/keycode.py
+#------------------------------------
 import time
 import board
 import busio
@@ -14,69 +16,45 @@ from adafruit_hid.consumer_control import ConsumerControl
 from adafruit_hid.consumer_control_code import ConsumerControlCode
 
 from digitalio import DigitalInOut, Direction, Pull
+#------------------------------------
+from constants import *
+from common import *
+from adb import *
 
-COLOUR_RED    = (0xFF, 0x00, 0x00)
-COLOUR_ORANGE = (0xFF, 0xA5, 0x00)
-COLOUR_YELLOW = (0xFF, 0xFF, 0x00)
-COLOUR_GREEN  = (0x00, 0xFF, 0x00)
-COLOUR_BLUE   = (0x00, 0x00, 0xFF)
-COLOUR_INDIGO = (0x4B, 0x00, 0x82)
-COLOUR_VIOLET = (0x8F, 0x00, 0xFF)
-COLOUR_CLEAR  = (0x08, 0x08, 0x08)
-
-
+#------------------------------------
 cs = DigitalInOut(board.GP17)
 cs.direction = Direction.OUTPUT
 cs.value = 0
 num_pixels = 16
-pixels = adafruit_dotstar.DotStar(board.GP18, board.GP19, num_pixels, brightness=0.1, auto_write=True)
+pixels = adafruit_dotstar.DotStar(board.GP18, board.GP19, num_pixels, brightness=0.2, auto_write=True)
 i2c = busio.I2C(board.GP5, board.GP4)
 device = I2CDevice(i2c, 0x20)
 kbd = Keyboard(usb_hid.devices)
 layout = KeyboardLayoutUS(kbd)
 held = [0] * num_pixels
-
-def colourWheel(pos):
-    if pos < 0 or pos > 255:
-        return (0, 0, 0)
-    if pos < 85:
-        return (255 - pos * 3, pos * 3, 0)
-    if pos < 170:
-        pos -= 85
-        return (0, 255 - pos * 3, pos * 3)
-    pos -= 170
-    return (pos * 3, 0, 255 - pos * 3)
-
+lastPress = [0] * num_pixels
+#------------------------------------
 def setKeyColour(pixel, colour):
     pixels[pixel] = colour
 
-def resetState():
+def resetState(colours):
     for i in range(num_pixels):
-        setKeyColour(i, COLOUR_CLEAR)
+        if colours != 0:
+            setKeyColour(i, colours[i][0])
+        #if held[i] == 1:
+        #    print("  ~~> [", i ,"] keyUp")
         held[i] = 0
 
-def tasteTheRainbow(loops):
-    RAINBOW = [COLOUR_RED, COLOUR_ORANGE, COLOUR_YELLOW, COLOUR_GREEN, COLOUR_BLUE, COLOUR_INDIGO, COLOUR_VIOLET]
-    DIAG = [[0],[1,4],[2,5,8],[3,6,9,12],[7,10,13],[11,14],[15]]
-    resetState()
+def swapLayout():
+    global ki
+    ki = AdbKeypadInterface(kbd, layout, setKeyColour, resetState)
+    ki.introduce()
 
-    for index in range (1, len(RAINBOW) * (loops + 1)):
-        currentColourIndex = 0
-        for snakeIndex in range(index - (len(RAINBOW)), index):
-            if snakeIndex >=0:
-                currentIndex = snakeIndex % len(DIAG)
-                currentDiag = DIAG[currentIndex]
-                currentColour = RAINBOW[currentColourIndex]
-                for button in currentDiag:
-                    setKeyColour(button, currentColour)
-                currentIndex-=1
-                currentColourIndex+=1
-
-        time.sleep(0.05)
-
-tasteTheRainbow(5)
-resetState()
-time.sleep(0.2)
+def handleKeyDown(keypad, key):
+    if key == 15:
+        swapLayout()
+    else:
+        keypad.keyAction(key)
 
 def read_button_states(x, y):
     pressed = [0] * num_pixels
@@ -93,12 +71,13 @@ def read_button_states(x, y):
     return pressed
 
 def keyPressed(keyIndex):
-    setKeyColour(keyIndex, colourWheel(keyIndex * num_pixels))
+    setKeyColour(keyIndex, ki.getKeyColours()[keyIndex][1])
     if not held[keyIndex]:
-        #layout.write("volu")
-        #kbd.send(Keycode.ENTER)
         held[keyIndex] = 1
-        print("  ~~> [", keyIndex ,"] keyDown")
+        handleKeyDown(ki, keyIndex)
+#------------------------------------
+ki = KeypadInterface(kbd, layout, setKeyColour, resetState)
+ki.introduce()
 
 while True:
     pressed = read_button_states(0, num_pixels)
@@ -110,5 +89,6 @@ while True:
             nonePressed = False
 
     if nonePressed:
-        resetState()
+        comboHeld = 0
+        resetState(ki.getKeyColours())
     time.sleep(0.1) # Debounce
