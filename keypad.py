@@ -19,7 +19,7 @@ class KeypadInterface():
             (COLOUR_OFF, COLOUR_CLEAR),
             (COLOUR_OFF, COLOUR_CLEAR),
             (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR)
+            (COLOUR_YELLOW, COLOUR_WHITE)
         )
 
     def __init__(self, keyboard, keyboardLayout, setKeyColour, resetState):
@@ -54,3 +54,4 @@ class KeypadInterface():
 
     def keyAction(self, index):
         print("      ~~> [",index,"] pressed")
+        #self.tasteTheRainbow(index)

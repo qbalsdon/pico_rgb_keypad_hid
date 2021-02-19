@@ -20,6 +20,8 @@ from digitalio import DigitalInOut, Direction, Pull
 from constants import *
 from common import *
 from adb import *
+from teams import *
+from dota import *
 
 #------------------------------------
 cs = DigitalInOut(board.GP17)
@@ -33,13 +35,17 @@ kbd = Keyboard(usb_hid.devices)
 layout = KeyboardLayoutUS(kbd)
 held = [0] * num_pixels
 lastPress = [0] * num_pixels
+interfaces = [AdbKeypadInterface, TeamsKeypadInterface, DotAKeypadInterface]
+currentInterface = -1
 #------------------------------------
 def setKeyColour(pixel, colour):
     pixels[pixel] = colour
 
 def resetState(colours):
     for i in range(num_pixels):
-        if colours != 0:
+        if len(colours) == 3:
+            setKeyColour(i, colours)
+        elif len(colours) == num_pixels:
             setKeyColour(i, colours[i][0])
         #if held[i] == 1:
         #    print("  ~~> [", i ,"] keyUp")
@@ -47,7 +53,9 @@ def resetState(colours):
 
 def swapLayout():
     global ki
-    ki = AdbKeypadInterface(kbd, layout, setKeyColour, resetState)
+    global currentInterface
+    currentInterface = (currentInterface + 1) % len(interfaces)
+    ki = interfaces[currentInterface](kbd, layout, setKeyColour, resetState)
     ki.introduce()
 
 def handleKeyDown(keypad, key):
