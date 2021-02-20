@@ -18,7 +18,7 @@ from adafruit_hid.consumer_control_code import ConsumerControlCode
 from digitalio import DigitalInOut, Direction, Pull
 #------------------------------------
 from constants import *
-from common import *
+from keypad import *
 from adb import *
 from teams import *
 from dota import *
