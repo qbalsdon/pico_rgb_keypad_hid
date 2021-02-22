@@ -57,20 +57,20 @@ Using the `keypad.py` file as a template, create the custom key mappings you wou
 
 I have started storing my custom configurations in a folder called `keyconfig/` for simplicity and structure. To manage configurations:
 1. copy `keypad.py` as a new file, give the file a unique name, as well as the class.
-1. modify the `handleEvent(self, keyIndex, event)` method to behave the way you want
-1. OPTIONAL STEPS:
+2. modify the `handleEvent(self, keyIndex, event)` method to behave the way you want
+3. OPTIONAL STEPS:
   - modify `introduce(self)` to perform an animation of your design on the buttons
   - alter `getKeyColours(self)` to define a two-dimensional array: `[0]` being the 'resting state' and `[1]` being the 'active' state
-1. in `code.py`
-  1. import the configurations: `from keyconfig.[mynewconfig] import *`
-  1. ensure the array knows about your desired configurations and the order in which you want them to appear: `interfaces = [interfaceOne, interfaceTwo, interfaceThree, mynewconfig]`
-  1. The code is currently set up to have the default `keypad.py` as the initial interface. Modify this to be whichever interface you want to start with:
+4. in `code.py`
+  - import the configurations: `from keyconfig.[mynewconfig] import *`
+  - ensure the array knows about your desired configurations and the order in which you want them to appear: `interfaces = [interfaceOne, interfaceTwo, interfaceThree, mynewconfig]`
+  - The code is currently set up to have the default `keypad.py` as the initial interface. Modify this to be whichever interface you want to start with:
     ```
     ki = KeypadInterface(kbd, layout, setKeyColour)
     ki.introduce()
     ```
-  1. Inside the main loop, the behaviour to swap between layouts is currently defined as an EVENT_EXTRA_LONG_PRESS on the 16th button. This will invoke the `swapLayout()` method which iterates through your keypad interfaces
-  1. The `constants.py` file defines the default values, colours, and delay times.
+  - Inside the main loop, the behaviour to swap between layouts is currently defined as an EVENT_EXTRA_LONG_PRESS on the 16th button. This will invoke the `swapLayout()` method which iterates through your keypad interfaces
+  - The `constants.py` file defines the default values, colours, and delay times.
 
 ### Pico Display
 
