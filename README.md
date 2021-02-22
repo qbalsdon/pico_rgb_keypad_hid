@@ -111,6 +111,7 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 
 1. Make colours one value instead of a tuple, convert when needed
 1. Modularise the code for the pimoroni keypad
+1. Use the PICO's LED to give a signal that something has happened, i.e. KEYDOWN, HOLD, LONG_HOLD.
 
 ## Display
 
