@@ -3,6 +3,30 @@ from constants import *
 from adafruit_hid.keycode import Keycode
 
 class TeamsKeypadInterface():
+    #--- OPTIONAL METHODS ---
+    def teamsIntro(self):
+        self.resetColours(COLOUR_OFF)
+
+        for col in range(4):
+            for row in range(4):
+                index = (col * 4) + row
+                self.setKeyColour(index, self.IMAGE[index])
+            time.sleep(0.15)
+        time.sleep(0.25)
+
+    def teamsMicToggle(self):
+        self.keyboard.send(Keycode.COMMAND, Keycode.SHIFT, Keycode.M)
+    def teamsCameraToggle(self):
+        self.keyboard.send(Keycode.COMMAND, Keycode.SHIFT, Keycode.O)
+    def teamsHangUp(self):
+        self.keyboard.send(Keycode.COMMAND, Keycode.SHIFT, Keycode.B)
+
+    #------------------------
+    #----- PICO DISPLAY -----
+    def getDisplaySettings(self):
+        return ("teams", "images/teams.bmp")
+    #------------------------
+    #--- REQUIRED METHODS ---
     IMAGE = [
             COLOUR_WHITE, COLOUR_WHITE, COLOUR_WHITE, COLOUR_WHITE,
             COLOUR_WHITE, COLOUR_INDIGO, COLOUR_INDIGO, COLOUR_INDIGO,
@@ -30,38 +54,31 @@ class TeamsKeypadInterface():
             (darkVersion(self.IMAGE[15]), COLOUR_YELLOW)
         )
 
-    def __init__(self, keyboard, keyboardLayout, setKeyColour, resetState):
+    def __init__(self, keyboard, keyboardLayout, setKeyColour):
         self.setKeyColour = setKeyColour
-        self.resetState = resetState
         self.keyboard = keyboard
         self.keyboardLayout= keyboardLayout
 
-    def teamsIntro(self):
-        self.resetState(COLOUR_OFF)
-
-        for col in range(4):
-            for row in range(4):
-                index = (col * 4) + row
-                self.setKeyColour(index, self.IMAGE[index])
-            time.sleep(0.15)
-        time.sleep(0.25)
-
     def introduce(self):
         self.teamsIntro()
-        self.resetState(self.getKeyColours())
+        self.resetColours(self.getKeyColours())
         time.sleep(0.2)
 
-    def keyAction(self, index):
+    def resetColours(self, colours):
+        for key in range(BUTTON_COUNT):
+            if len(colours) == 3:
+                self.setKeyColour(key, colours)
+            elif len(colours) == BUTTON_COUNT:
+                self.setKeyColour(key, colours[key][0])
+
+    def handleEvent(self, index, event):
+        if not event & EVENT_SINGLE_PRESS:
+            return
+
         if index == 0:
             self.teamsMicToggle()
         elif index == 1:
             self.teamsCameraToggle()
         elif index == 2:
             self.teamsHangUp()
-
-    def teamsMicToggle(self):
-        self.keyboard.send(Keycode.COMMAND, Keycode.SHIFT, Keycode.M)
-    def teamsCameraToggle(self):
-        self.keyboard.send(Keycode.COMMAND, Keycode.SHIFT, Keycode.O)
-    def teamsHangUp(self):
-        self.keyboard.send(Keycode.COMMAND, Keycode.SHIFT, Keycode.B)
+    #------------------------

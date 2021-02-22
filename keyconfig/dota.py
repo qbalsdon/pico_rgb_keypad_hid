@@ -3,6 +3,22 @@ from constants import *
 from adafruit_hid.keycode import Keycode
 
 class DotAKeypadInterface():
+    #--- OPTIONAL METHODS ---
+    def dotaIntro(self):
+        global image
+        self.resetColours(COLOUR_OFF)
+
+        for index in (10, 9, 5, 6, 7, 11, 15, 14, 13, 12, 8, 4, 0, 1, 2, 3):
+            self.setKeyColour(index, self.IMAGE[index])
+            time.sleep(0.05)
+        time.sleep(0.25)
+
+    #------------------------
+    #----- PICO DISPLAY -----
+    def getDisplaySettings(self):
+        return ("dota", "images/dota.bmp")
+    #------------------------
+    #--- REQUIRED METHODS ---
     IMAGE = [
         COLOUR_WHITE, COLOUR_RED, COLOUR_RED, COLOUR_RED,
         COLOUR_RED, COLOUR_RED, COLOUR_WHITE, COLOUR_RED,
@@ -30,27 +46,27 @@ class DotAKeypadInterface():
             (darkVersion(self.IMAGE[15]), COLOUR_YELLOW)
         )
 
-    def __init__(self, keyboard, keyboardLayout, setKeyColour, resetState):
+    def __init__(self, keyboard, keyboardLayout, setKeyColour):
         self.setKeyColour = setKeyColour
-        self.resetState = resetState
         self.keyboard = keyboard
         self.keyboardLayout= keyboardLayout
 
-    def dotaIntro(self):
-        global image
-        self.resetState(COLOUR_OFF)
-
-        for index in (10, 9, 5, 6, 7, 11, 15, 14, 13, 12, 8, 4, 0, 1, 2, 3):
-            self.setKeyColour(index, self.IMAGE[index])
-            time.sleep(0.05)
-        time.sleep(0.25)
-
     def introduce(self):
         self.dotaIntro()
-        self.resetState(self.getKeyColours())
+        self.resetColours(self.getKeyColours())
         time.sleep(0.2)
 
-    def keyAction(self, index):
+    def resetColours(self, colours):
+        for key in range(BUTTON_COUNT):
+            if len(colours) == 3:
+                self.setKeyColour(key, colours)
+            elif len(colours) == BUTTON_COUNT:
+                self.setKeyColour(key, colours[key][0])
+
+    def handleEvent(self, index, event):
+        if not event & EVENT_SINGLE_PRESS:
+            return
+
         if index == 0:
             self.keyboard.send(Keycode.Q)
         elif index == 1:
@@ -83,3 +99,4 @@ class DotAKeypadInterface():
             self.keyboard.send(Keycode.F1) #Focus Hero
         elif index == 14:
             self.keyboard.send(Keycode.F2) #Controlled Units
+    #------------------------

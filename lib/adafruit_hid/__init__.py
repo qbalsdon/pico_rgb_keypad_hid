@@ -19,7 +19,7 @@ Implementation Notes
 
 # imports
 
-__version__ = "4.1.6"
+__version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_HID.git"
 
 

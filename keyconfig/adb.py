@@ -3,16 +3,38 @@ from constants import *
 from adafruit_hid.keycode import Keycode
 
 class AdbKeypadInterface():
-    #                   osascript -e 'display dialog "Can you see a dialog with 2 buttons?" buttons {"Ok", "Cancel"} default button "Ok"'
+    #--- OPTIONAL METHODS ---
     showTerminalDialog="osascript -e 'display dialog \"Can you see a dialog with 2 buttons?\" buttons {\"Ok\", \"Cancel\"} default button \"Ok\"'"
-    loadDevice="sh unlockWithSwipe -p 314159 && scrcpy -Sw & SCRCPY_ID=$!"
-    killDevice="kill $SCRCPY_ID"
+    loadDevice="pkill scrcpy; sleep 0.1 && sh unlockWithSwipe -p 314159 && scrcpy -Sw &"
     listElementIdDialog="sh okDialog -c \"sh listElements -a id\""
     toggleTalkBack="sh talkback"
 
-    #def createDialogWithCommand(self, command):
-        #return "PARAMETER=\"${$(" + command + ")//$'\\n'/\\\\n}\" && PARAMETER=\"display dialog \\\"$PARAMETER\\\" buttons {\\\"Ok\\\", \\\"Cancel\\\"} default button \\\"Ok\\\"\" && osascript -e $PARAMETER &"
+    def goTerminal(self):
+        self.keyboard.send(Keycode.COMMAND, Keycode.SPACE)
+        time.sleep(KEYBOARD_DELAY)
+        self.keyboardLayout.write("terminal")
+        time.sleep(KEYBOARD_DELAY)
+        self.keyboard.send(Keycode.RETURN)
+        time.sleep(KEYBOARD_DELAY)
 
+    def androidAdbIntro(self):
+        self.resetColours(COLOUR_OFF)
+
+        time.sleep(0.2)
+        for col in range(4):
+            for row in range(4):
+                index = (row * 4) + col
+                self.setKeyColour(index, self.IMAGE[index])
+            time.sleep(ANIMATION_FRAME)
+
+        time.sleep(ANIMATION_WAIT)
+
+    #------------------------
+    #----- PICO DISPLAY -----
+    def getDisplaySettings(self):
+        return ("android", "images/android.bmp")
+    #------------------------
+    #--- REQUIRED METHODS ---
     IMAGE = [
         COLOUR_WHITE, COLOUR_GREEN, COLOUR_WHITE, COLOUR_WHITE,
         COLOUR_WHITE, COLOUR_WHITE, COLOUR_GREEN, COLOUR_GREEN,
@@ -40,42 +62,27 @@ class AdbKeypadInterface():
             (darkVersion(self.IMAGE[15]), COLOUR_YELLOW)
         )
 
-    def __init__(self, keyboard, keyboardLayout, setKeyColour, resetState):
+    def __init__(self, keyboard, keyboardLayout, setKeyColour):
         self.setKeyColour = setKeyColour
-        self.resetState = resetState
         self.keyboard = keyboard
         self.keyboardLayout= keyboardLayout
 
-    def goBlank(self):
-        for index in range(16):
-            self.setKeyColour(index, COLOUR_OFF)
-
-    def androidAdbIntro(self):
-        self.resetState(COLOUR_OFF)
-
-        time.sleep(0.2)
-        for col in range(4):
-            for row in range(4):
-                index = (row * 4) + col
-                self.setKeyColour(index, self.IMAGE[index])
-            time.sleep(ANIMATION_FRAME)
-
-        time.sleep(ANIMATION_WAIT)
-
     def introduce(self):
         self.androidAdbIntro()
-        self.resetState(self.getKeyColours())
+        self.resetColours(self.getKeyColours())
         time.sleep(0.1)
 
-    def goTerminal(self):
-        self.keyboard.send(Keycode.COMMAND, Keycode.SPACE)
-        time.sleep(KEYBOARD_DELAY)
-        self.keyboardLayout.write("terminal")
-        time.sleep(KEYBOARD_DELAY)
-        self.keyboard.send(Keycode.RETURN)
-        time.sleep(KEYBOARD_DELAY)
+    def resetColours(self, colours):
+        for key in range(BUTTON_COUNT):
+            if len(colours) == 3:
+                self.setKeyColour(key, colours)
+            elif len(colours) == BUTTON_COUNT:
+                self.setKeyColour(key, colours[key][0])
 
-    def keyAction(self, index):
+    def handleEvent(self, index, event):
+        if not event & EVENT_SINGLE_PRESS:
+            return
+
         if index == 0:
             self.goTerminal()
             self.keyboardLayout.write(self.loadDevice)
@@ -91,8 +98,8 @@ class AdbKeypadInterface():
             self.keyboardLayout.write(self.toggleTalkBack)
             time.sleep(KEYBOARD_DELAY)
             self.keyboard.send(Keycode.RETURN)
-        elif index == 14:
-            self.goTerminal()
-            self.keyboardLayout.write(self.killDevice)
-            time.sleep(KEYBOARD_DELAY)
-            self.keyboard.send(Keycode.RETURN)
+        time.sleep(KEYBOARD_DELAY)
+        time.sleep(KEYBOARD_DELAY)
+        self.keyboard.send(Keycode.COMMAND, Keycode.TAB)
+        time.sleep(KEYBOARD_DELAY)
+    #------------------------

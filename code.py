@@ -17,55 +17,43 @@ from adafruit_hid.consumer_control_code import ConsumerControlCode
 
 from digitalio import DigitalInOut, Direction, Pull
 #------------------------------------
+#from picodisplay import *
+#------------------------------------
 from constants import *
 from keypad import *
-from adb import *
-from teams import *
-from dota import *
-
+from keyconfig.adb import *
+from keyconfig.teams import *
+from keyconfig.dota import *
+#------------------------------------
+interfaces = [AdbKeypadInterface, TeamsKeypadInterface, DotAKeypadInterface]
+currentInterface = -1
 #------------------------------------
 cs = DigitalInOut(board.GP17)
 cs.direction = Direction.OUTPUT
 cs.value = 0
-num_pixels = 16
-pixels = adafruit_dotstar.DotStar(board.GP18, board.GP19, num_pixels, brightness=0.2, auto_write=True)
+pixels = adafruit_dotstar.DotStar(board.GP18, board.GP19, BUTTON_COUNT, brightness=0.2, auto_write=True)
 i2c = busio.I2C(board.GP5, board.GP4)
 device = I2CDevice(i2c, 0x20)
 kbd = Keyboard(usb_hid.devices)
 layout = KeyboardLayoutUS(kbd)
-held = [0] * num_pixels
-lastPress = [0] * num_pixels
-interfaces = [AdbKeypadInterface, TeamsKeypadInterface, DotAKeypadInterface]
-currentInterface = -1
+#------------------------------------
+timeDown = [-1] * BUTTON_COUNT
+timeUp = [-1] * BUTTON_COUNT
+waiting = [False] * BUTTON_COUNT
 #------------------------------------
 def setKeyColour(pixel, colour):
     pixels[pixel] = colour
-
-def resetState(colours):
-    for i in range(num_pixels):
-        if len(colours) == 3:
-            setKeyColour(i, colours)
-        elif len(colours) == num_pixels:
-            setKeyColour(i, colours[i][0])
-        #if held[i] == 1:
-        #    print("  ~~> [", i ,"] keyUp")
-        held[i] = 0
 
 def swapLayout():
     global ki
     global currentInterface
     currentInterface = (currentInterface + 1) % len(interfaces)
-    ki = interfaces[currentInterface](kbd, layout, setKeyColour, resetState)
+    ki = interfaces[currentInterface](kbd, layout, setKeyColour)
+    # displayMode(ki.getDisplaySettings())
     ki.introduce()
 
-def handleKeyDown(keypad, key):
-    if key == 15:
-        swapLayout()
-    else:
-        keypad.keyAction(key)
-
 def read_button_states(x, y):
-    pressed = [0] * num_pixels
+    pressed = [0] * BUTTON_COUNT
     with device:
         device.write(bytes([0x0]))
         result = bytearray(2)
@@ -77,26 +65,67 @@ def read_button_states(x, y):
             else:
                 pressed[i] = 0
     return pressed
-
-def keyPressed(keyIndex):
-    setKeyColour(keyIndex, ki.getKeyColours()[keyIndex][1])
-    if not held[keyIndex]:
-        held[keyIndex] = 1
-        handleKeyDown(ki, keyIndex)
 #------------------------------------
-ki = KeypadInterface(kbd, layout, setKeyColour, resetState)
+# takes a button state and checks if the button is
+# down or up. It then attempts to determine the past
+# states of the button to see if the button belongs
+# to one of the following possible events:
+#   - EVENT_NONE
+#   - EVENT_SINGLE_PRESS,
+#   - EVENT_DOUBLE_PRESS,
+#   - EVENT_LONG_PRESS,
+#   - EVENT_EXTRA_LONG_PRESS
+#   - EVENT_KEY_DOWN
+#   - EVENT_KEY_UP
+def checkButton(isPressed, index):
+    global timeDown
+    global timeUp
+    currentTime = timeInMillis()
+    lengthDown = -1
+    event = EVENT_NONE
+    if isPressed == 1 and timeDown[index] < 0:
+        timeDown[index] = currentTime
+        event += EVENT_KEY_DOWN
+    if isPressed == 0 and timeDown[index] > 0:
+        event += EVENT_KEY_UP
+        lengthDown = currentTime - timeDown[index]
+        lengthUp = currentTime - timeUp[index]
+        timeUp[index] = currentTime
+        timeDown[index] = -1
+        waiting[index] = True
+
+        if lengthUp < DOUBLE_GAP:
+            # double press
+            waiting[index] = False
+            event += EVENT_DOUBLE_PRESS
+
+    if waiting[index] and lengthDown >= EXTRA_LONG_HOLD:
+        #extra long press
+        waiting[index] = False
+        event += EVENT_EXTRA_LONG_PRESS
+
+    if waiting[index] and lengthDown >= LONG_HOLD:
+        #long press
+        waiting[index] = False
+        event += EVENT_LONG_PRESS
+
+    lengthUp = currentTime - timeUp[index]
+    if waiting[index] and lengthUp >= DOUBLE_GAP:
+        #single press
+        waiting[index] = False
+        event += EVENT_SINGLE_PRESS
+    return event
+#------------------------------------
+ki = KeypadInterface(kbd, layout, setKeyColour)
 ki.introduce()
-
+#------------------------------------
+#displayMode(ki.getDisplaySettings())
+#------------------------------------
 while True:
-    pressed = read_button_states(0, num_pixels)
+    pressed = read_button_states(0, BUTTON_COUNT)
 
-    nonePressed = True
-    for keyIndex in range(num_pixels):
-        if pressed[keyIndex]:
-            keyPressed(keyIndex)
-            nonePressed = False
-
-    if nonePressed:
-        comboHeld = 0
-        resetState(ki.getKeyColours())
-    time.sleep(0.1) # Debounce
+    for keyIndex in range(BUTTON_COUNT):
+        event = checkButton(pressed[keyIndex], keyIndex)
+        ki.handleEvent(keyIndex, event)
+        if keyIndex == 15 and event & EVENT_EXTRA_LONG_PRESS:
+            swapLayout()

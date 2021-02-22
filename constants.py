@@ -1,3 +1,13 @@
+import time
+
+EVENT_NONE             = 0x00
+EVENT_SINGLE_PRESS     = 0x01
+EVENT_DOUBLE_PRESS     = 0x02
+EVENT_LONG_PRESS       = 0x04
+EVENT_EXTRA_LONG_PRESS = 0x08
+EVENT_KEY_DOWN         = 0x10
+EVENT_KEY_UP           = 0x20
+
 KEYBOARD_DELAY = 0.2
 ANIMATION_FRAME = 0.15
 ANIMATION_WAIT = 0.25
@@ -22,8 +32,17 @@ COLOUR_DARK_BLUE   = (0x00, 0x00, 0x80)
 COLOUR_DARK_INDIGO = (0x25, 0x00, 0x41)
 COLOUR_DARK_VIOLET = (0x74, 0x00, 0x80)
 
+DOUBLE_GAP = 250
+LONG_HOLD = 1000
+EXTRA_LONG_HOLD = 3000
+
+BUTTON_COUNT = 16
+
 def noOp():
     pass
+
+def timeInMillis():
+    return int(time.monotonic() * 1000)
 
 def darkVersion(colour):
     if colour == COLOUR_RED:
