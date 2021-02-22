@@ -82,8 +82,8 @@ If you would like to use the [Pico Display Pack][PICO_DISPLAY] that I have set u
   - both references to `displayMode(ki.getDisplaySettings())` to show the initial screen and when the layouts are swapped
 2. include the `picodisplay.py` file and the `images/` directory. You will need to copy the other Adafruit `lib/` files across, namely
 
-  - 'adafruit_display_text': for rending text on the display
-  - 'adafruit_imageload': allows images to be loaded into memory for faster reference.
+  - `adafruit_display_text/`: for rending text on the display
+  - `adafruit_imageload/`: allows images to be loaded into memory for faster reference.
 
 3. Read more about how to use the library [here][ADAFRUIT_DISPLAYIO]
 
