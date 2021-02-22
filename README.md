@@ -80,8 +80,8 @@ If you would like to use the [Pico Display Pack][PICO_DISPLAY] that I have set u
   1. `from picodisplay import *` imports the behvaiour and the custom wiring
   1. both references to `displayMode(ki.getDisplaySettings())` to show the initial screen and when the layouts are swapped
 1. include the `picodisplay.py` file and the `images/` directory. You will need to copy the other Adafruit `lib/` files across, namely
-  1. 'adafruit_display_text': for rending text on the display
-  1. 'adafruit_imageload': allows images to be loaded into memory for faster reference.
+  - 'adafruit_display_text': for rending text on the display
+  - 'adafruit_imageload': allows images to be loaded into memory for faster reference.
 1. Read more about how to use the library [here][ADAFRUIT_DISPLAYIO]
 
 # Case
