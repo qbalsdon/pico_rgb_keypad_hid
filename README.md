@@ -77,11 +77,14 @@ I have started storing my custom configurations in a folder called `keyconfig/` 
 If you would like to use the [Pico Display Pack][PICO_DISPLAY] that I have set up, refer to the wiring diagram below. This is due to the keypad already using the `LCD_MOSI`, `LCD_SCLK`, `LCD_CS` and `LCD_DC` pins. Also because the library is in CircuitPython, the `reset` pin needs to be moved as well (CP has no knowledge of the Pico specifics).
 ![Structure](readme_images/display_wiring.png)
 1. Ensure you uncomment all the references to the picodisplay in the `code.py` file
-    - `from picodisplay import *` imports the behvaiour and the custom wiring
-    - both references to `displayMode(ki.getDisplaySettings())` to show the initial screen and when the layouts are swapped
+
+  - `from picodisplay import *` imports the behvaiour and the custom wiring
+  - both references to `displayMode(ki.getDisplaySettings())` to show the initial screen and when the layouts are swapped
 2. include the `picodisplay.py` file and the `images/` directory. You will need to copy the other Adafruit `lib/` files across, namely
-    - 'adafruit_display_text': for rending text on the display
-    - 'adafruit_imageload': allows images to be loaded into memory for faster reference.
+
+  - 'adafruit_display_text': for rending text on the display
+  - 'adafruit_imageload': allows images to be loaded into memory for faster reference.
+
 3. Read more about how to use the library [here][ADAFRUIT_DISPLAYIO]
 
 # Case
