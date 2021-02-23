@@ -58,12 +58,18 @@ class DotAKeypadInterface():
 
     def resetColours(self, colours):
         for key in range(BUTTON_COUNT):
-            if len(colours) == 3:
+            if isinstance(colours, int):
                 self.setKeyColour(key, colours)
             elif len(colours) == BUTTON_COUNT:
                 self.setKeyColour(key, colours[key][0])
 
     def handleEvent(self, index, event):
+        if index == 8:
+            if event & EVENT_KEY_DOWN:
+                self.keyboard.press(Keycode.SHIFT)
+            elif event & EVENT_KEY_UP:
+                self.keyboard.release(Keycode.SHIFT)
+
         if not event & EVENT_SINGLE_PRESS:
             return
 
@@ -85,8 +91,8 @@ class DotAKeypadInterface():
             self.keyboard.send(Keycode.T)
             time.sleep(0.01)
             self.keyboard.send(Keycode.T)
-        elif index == 8:
-            self.keyboard.send(Keycode.FOUR)
+        # elif index == 8:
+        #     self.keyboard.send(Keycode.FOUR)
         elif index == 9:
             self.keyboard.send(Keycode.FIVE)
         elif index == 10:

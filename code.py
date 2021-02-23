@@ -1,5 +1,3 @@
-#https://github.com/adafruit/Adafruit_CircuitPython_HID/blob/master/adafruit_hid/keycode.py
-#------------------------------------
 import time
 import board
 import busio
@@ -17,7 +15,7 @@ from adafruit_hid.consumer_control_code import ConsumerControlCode
 
 from digitalio import DigitalInOut, Direction, Pull
 #------------------------------------
-#from picodisplay import *
+# from picodisplay import *
 #------------------------------------
 from constants import *
 from keypad import *
@@ -37,12 +35,16 @@ device = I2CDevice(i2c, 0x20)
 kbd = Keyboard(usb_hid.devices)
 layout = KeyboardLayoutUS(kbd)
 #------------------------------------
+picoLED = DigitalInOut(board.GP25)
+picoLED.direction = Direction.OUTPUT
+picoLED.value = 0
+#------------------------------------
 timeDown = [-1] * BUTTON_COUNT
 timeUp = [-1] * BUTTON_COUNT
 waiting = [False] * BUTTON_COUNT
 #------------------------------------
 def setKeyColour(pixel, colour):
-    pixels[pixel] = colour
+    pixels[pixel] = (((colour >> 16) & 255), (colour >> 8) & 255, colour & 255)
 
 def swapLayout():
     global ki
@@ -66,6 +68,11 @@ def read_button_states(x, y):
                 pressed[i] = 0
     return pressed
 #------------------------------------
+def checkHeldForFlash(timeDown):
+    if timeDown > 0:
+        downTime = timeInMillis() - timeDown
+        picoLED.value = (downTime >= LONG_HOLD and downTime <= LONG_HOLD + 100) or (downTime >= EXTRA_LONG_HOLD and downTime <= EXTRA_LONG_HOLD + 100)
+
 # takes a button state and checks if the button is
 # down or up. It then attempts to determine the past
 # states of the button to see if the button belongs
@@ -83,10 +90,14 @@ def checkButton(isPressed, index):
     currentTime = timeInMillis()
     lengthDown = -1
     event = EVENT_NONE
+
+    checkHeldForFlash(timeDown[index])
+
     if isPressed == 1 and timeDown[index] < 0:
         timeDown[index] = currentTime
         event += EVENT_KEY_DOWN
     if isPressed == 0 and timeDown[index] > 0:
+        picoLED.value = 0
         event += EVENT_KEY_UP
         lengthDown = currentTime - timeDown[index]
         lengthUp = currentTime - timeUp[index]
@@ -119,7 +130,7 @@ def checkButton(isPressed, index):
 ki = KeypadInterface(kbd, layout, setKeyColour)
 ki.introduce()
 #------------------------------------
-#displayMode(ki.getDisplaySettings())
+# displayMode(ki.getDisplaySettings())
 #------------------------------------
 while True:
     pressed = read_button_states(0, BUTTON_COUNT)

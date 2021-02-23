@@ -91,6 +91,35 @@ If you would like to use the [Pico Display Pack][PICO_DISPLAY] that I have set u
 
 Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 
+# External libraries
+
+1. [Adafruit Hardware Interface Device (HID)][ADAFRUIT_HID] - making the board behave like a keyboard
+1. [Adafruit HID keycodes][ADAFRUIT_HID_CODES] - quick reference for default key values
+1. [Adafruit Circuit Python displayio library][ADAFRUIT_DISPLAYIO]
+
+# My ever-growing todo list
+
+## General
+
+1. :ballot_box_with_check: Make colours one value instead of a tuple, convert when needed
+1. :black_square_button: Modularise the code for the pimoroni keypad
+1. :ballot_box_with_check: Use the PICO's LED to give a signal that something has happened, i.e. KEYDOWN, HOLD, LONG_HOLD.
+1. :black_square_button: Create a function key keypad (F1, F2, F3 ...)
+1. :black_square_button: Create an android studio keypad (execution window, debug application)
+1. :black_square_button: Add a11y features to adb keypad
+
+## Keypad configs
+
+1. :ballot_box_with_check: Emulate a shift hold.
+
+## Display
+
+1. :black_square_button: Use main constants for colours
+1. :black_square_button: Plug in buttons and RGB led
+1. :black_square_button: Determine why the display is so flakey when put on a PCB
+1. :black_square_button: Improve the library to handle `BL_EN`
+1. :black_square_button: Consider other [displays][DISPLAY_BREAKOUT]
+
 [UF2]: https://circuitpython.org/board/raspberry_pi_pico/
 [BUNDLE_FILES]: https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases
 [CODEPY]: https://gist.github.com/wildestpixel/6b684b8bc886392f7c4c57015fab3d97
@@ -104,18 +133,6 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 [PICO_DISPLAY]: https://shop.pimoroni.com/products/pico-display-pack
 [LINE38]: https://github.com/qbalsdon/pico_rgb_keypad_hid/blob/8f63c366559465032fa30e0789f4867cd539c37c/code.py#L38
 [ADAFRUIT_DISPLAYIO]: https://learn.adafruit.com/circuitpython-display-support-using-displayio/examples
-
-# My ever-growing todo list
-
-## General
-
-1. Make colours one value instead of a tuple, convert when needed
-1. Modularise the code for the pimoroni keypad
-1. Use the PICO's LED to give a signal that something has happened, i.e. KEYDOWN, HOLD, LONG_HOLD.
-
-## Display
-
-1. Use main constants for colours
-1. Plug in buttons and RGB led
-1. Determine why the display is so flakey when put on a PCB
-1. Improve the library to handle `BL_EN`
+[ADAFRUIT_HID]: https://github.com/adafruit/Adafruit_CircuitPython_HID/blob/master/adafruit_hid/
+[ADAFRUIT_HID_CODES]: https://github.com/adafruit/Adafruit_CircuitPython_HID/blob/master/adafruit_hid/keycode.py
+[DISPLAY_BREAKOUT]: https://shop.pimoroni.com/products/1-3-spi-colour-lcd-240x240-breakout

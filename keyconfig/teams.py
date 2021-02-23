@@ -66,7 +66,7 @@ class TeamsKeypadInterface():
 
     def resetColours(self, colours):
         for key in range(BUTTON_COUNT):
-            if len(colours) == 3:
+            if isinstance(colours, int):
                 self.setKeyColour(key, colours)
             elif len(colours) == BUTTON_COUNT:
                 self.setKeyColour(key, colours[key][0])
