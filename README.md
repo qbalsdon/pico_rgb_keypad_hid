@@ -107,6 +107,7 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 1. :black_square_button: Create a function key keypad (F1, F2, F3 ...)
 1. :black_square_button: Create an android studio keypad (execution window, debug application)
 1. :black_square_button: Add a11y features to adb keypad
+1. :black_square_button: KEY_DOWN / UP colour management
 
 ## Keypad configs
 
