@@ -25,6 +25,10 @@ from keyconfig.adb import *
 from keyconfig.teams import *
 from keyconfig.dota import *
 #------------------------------------
+for _ in range(1000):
+    print(" ")
+print("  ============ NEW EXECUTION ============  ")
+#------------------------------------
 interfaces = [AdbKeypadInterface, TeamsKeypadInterface, DotAKeypadInterface]
 currentInterface = -1
 #------------------------------------
@@ -44,6 +48,7 @@ picoLED.value = 0
 timeDown = [-1] * BUTTON_COUNT
 timeUp = [-1] * BUTTON_COUNT
 waiting = [False] * BUTTON_COUNT
+keypadButtonStates = [ timeDown, timeUp, waiting ]
 #------------------------------------
 def setKeyColour(pixel, colour):
     pixels[pixel] = (((colour >> 16) & 255), (colour >> 8) & 255, colour & 255)
@@ -53,7 +58,7 @@ def swapLayout():
     global currentInterface
     currentInterface = (currentInterface + 1) % len(interfaces)
     ki = interfaces[currentInterface](kbd, layout, setKeyColour)
-    # picoDisplay.render(wallpapers[currentInterface](), 270)
+    picoDisplay.render(wallpapers[currentInterface](), 270)
     ki.introduce()
 
 def read_button_states(x, y):
@@ -70,64 +75,12 @@ def read_button_states(x, y):
                 pressed[i] = 0
     return pressed
 #------------------------------------
-def checkHeldForFlash(timeDown):
-    if timeDown > 0:
-        downTime = timeInMillis() - timeDown
+def checkHeldForFlash(heldDownStartMillis):
+    if heldDownStartMillis > 0:
+        downTime = timeInMillis() - heldDownStartMillis
         picoLED.value = (downTime >= LONG_HOLD and downTime <= LONG_HOLD + 100) or (downTime >= EXTRA_LONG_HOLD and downTime <= EXTRA_LONG_HOLD + 100)
-
-# takes a button state and checks if the button is
-# down or up. It then attempts to determine the past
-# states of the button to see if the button belongs
-# to one of the following possible events:
-#   - EVENT_NONE
-#   - EVENT_SINGLE_PRESS,
-#   - EVENT_DOUBLE_PRESS,
-#   - EVENT_LONG_PRESS,
-#   - EVENT_EXTRA_LONG_PRESS
-#   - EVENT_KEY_DOWN
-#   - EVENT_KEY_UP
-def checkButton(isPressed, index):
-    global timeDown
-    global timeUp
-    currentTime = timeInMillis()
-    lengthDown = -1
-    event = EVENT_NONE
-
-    checkHeldForFlash(timeDown[index])
-
-    if isPressed == 1 and timeDown[index] < 0:
-        timeDown[index] = currentTime
-        event += EVENT_KEY_DOWN
-    if isPressed == 0 and timeDown[index] > 0:
+    else:
         picoLED.value = 0
-        event += EVENT_KEY_UP
-        lengthDown = currentTime - timeDown[index]
-        lengthUp = currentTime - timeUp[index]
-        timeUp[index] = currentTime
-        timeDown[index] = -1
-        waiting[index] = True
-
-        if lengthUp < DOUBLE_GAP:
-            # double press
-            waiting[index] = False
-            event += EVENT_DOUBLE_PRESS
-
-    if waiting[index] and lengthDown >= EXTRA_LONG_HOLD:
-        #extra long press
-        waiting[index] = False
-        event += EVENT_EXTRA_LONG_PRESS
-
-    if waiting[index] and lengthDown >= LONG_HOLD:
-        #long press
-        waiting[index] = False
-        event += EVENT_LONG_PRESS
-
-    lengthUp = currentTime - timeUp[index]
-    if waiting[index] and lengthUp >= DOUBLE_GAP:
-        #single press
-        waiting[index] = False
-        event += EVENT_SINGLE_PRESS
-    return event
 #------------------------------------
 # rainbow = picoDisplay.createRainbow()
 # picoDisplay.render(rainbow, 270)
@@ -136,11 +89,16 @@ ki = KeypadInterface(kbd, layout, setKeyColour)
 ki.introduce()
 #------------------------------------
 while True:
+    # for displayKeyIndex in range(DISPLAY_BUTTON_COUNT):
+    #     buttonValue = checkButton(displayKeyIndex,
+    #                         not picoDisplay.Buttons[displayKeyIndex].value,
+    #                         picoDisplay.ButtonStates,
+    #                         checkHeldForFlash)
+    #     if displayKeyIndex == 0 and buttonValue & EVENT_SINGLE_PRESS:
+    #         swapLayout()
 
     pressed = read_button_states(0, BUTTON_COUNT)
 
     for keyIndex in range(BUTTON_COUNT):
-        event = checkButton(pressed[keyIndex], keyIndex)
+        event = checkButton(keyIndex, pressed[keyIndex], keypadButtonStates, checkHeldForFlash)
         ki.handleEvent(keyIndex, event)
-        if keyIndex == 15 and event & EVENT_EXTRA_LONG_PRESS:
-            swapLayout()

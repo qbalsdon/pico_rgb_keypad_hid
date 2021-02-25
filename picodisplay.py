@@ -28,20 +28,24 @@ from adafruit_display_text import label
 import adafruit_imageload
 import adafruit_st7789
 
+from digitalio import DigitalInOut, Direction, Pull
+
 from constants import *
 
-class PicoDisplay():
+# REMEMBER THIS ONE IF YOU WIRE UP THE OTHER BUTTONS!!
+DISPLAY_BUTTON_COUNT = 2
 
-    # TODO: BUTTONS
-    #A 12
-    #B 13
-    #X 14
-    #Y 15
+class PicoDisplay():
     def __init__(self, GPIO_RESET = board.GP22,
                        GPIO_MOSI  = board.GP27,
                        GPIO_CLK   = board.GP26,
                        GPIO_CS    = board.GP21,
                        GPIO_DC    = board.GP20):
+                       # If you want to wire them up
+                       # xButtonPin = board.GP14,
+                       # yButtonPin = board.GP15):
+                       # aButtonPin = board.GP14,
+                       # bButtonPin = board.GP15):
         # Release any resources currently in use for the displays
         displayio.release_displays()
                                    # COLOUR     ORIGINAL TYPE
@@ -62,6 +66,27 @@ class PicoDisplay():
                             width=SCREEN_WIDTH,
                             height=SCREEN_HEIGHT,
                             rowstart=40, colstart=53)
+
+        # self.xButton = DigitalInOut(xButtonPin)
+        # self.xButton.direction = Direction.INPUT
+        # self.xButton.pull = Pull.UP
+        # self.yButton = DigitalInOut(yButtonPin)
+        # self.yButton.direction = Direction.INPUT
+        # self.yButton.pull = Pull.UP
+
+        # IF YOU WANT TO WIRE THEM UP
+        # self.aButton = DigitalInOut(aButtonPin)
+        # self.aButton.direction = Direction.INPUT
+        # self.aButton.pull = Pull.UP
+        # self.bButton = DigitalInOut(bButtonPin)
+        # self.bButton.direction = Direction.INPUT
+        # self.bButton.pull = Pull.UP
+
+        # self.Buttons = [ self.xButton, self.yButton ]
+        # self.TimeDown = [-1] * DISPLAY_BUTTON_COUNT
+        # self.TimeUp = [-1] * DISPLAY_BUTTON_COUNT
+        # self.Waiting = [False] * DISPLAY_BUTTON_COUNT
+        # self.ButtonStates = [ self.TimeDown, self.TimeUp, self.Waiting ]
 
     def printInfo():
         print("==============================")

@@ -105,6 +105,7 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 
 1. :ballot_box_with_check: Make colours one value instead of a tuple, convert when needed
 1. :black_square_button: Modularise the code for the pimoroni keypad
+  - :ballot_box_with_check: Moved the code for button press checks into `constants.py`
 1. :ballot_box_with_check: Use the PICO's LED to give a signal that something has happened, i.e. KEYDOWN, HOLD, LONG_HOLD.
 1. :black_square_button: KEY_DOWN / UP colour management
 
@@ -129,6 +130,7 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 
 1. :black_square_button: Use main constants for colours
 1. :black_square_button: Plug in buttons and RGB led
+  - :ballot_box_with_check: Button code done
 1. :ballot_box_with_check: Determine why the display is so flakey when put on a PCB (faulty PICO display screen)
 1. :black_square_button: Improve the library to handle `BL_EN` - PWM pin for linear backlight control
 1. :black_square_button: Consider other [displays][DISPLAY_BREAKOUT]
