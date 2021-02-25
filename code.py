@@ -58,7 +58,7 @@ def swapLayout():
     global currentInterface
     currentInterface = (currentInterface + 1) % len(interfaces)
     ki = interfaces[currentInterface](kbd, layout, setKeyColour)
-    picoDisplay.render(wallpapers[currentInterface](), 270)
+    # picoDisplay.render(wallpapers[currentInterface](), 270)
     ki.introduce()
 
 def read_button_states(x, y):

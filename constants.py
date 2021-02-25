@@ -71,3 +71,58 @@ def darkVersion(colour):
         return COLOUR_DARK_VIOLET
     if colour == COLOUR_WHITE:
         return COLOUR_WHITE_MID
+
+# takes a button state and checks if the button is
+# down or up. It then attempts to determine the past
+# states of the button to see if the button belongs
+# to one of the following possible events:
+#   - EVENT_NONE
+#   - EVENT_SINGLE_PRESS,
+#   - EVENT_DOUBLE_PRESS,
+#   - EVENT_LONG_PRESS,
+#   - EVENT_EXTRA_LONG_PRESS
+#   - EVENT_KEY_DOWN
+#   - EVENT_KEY_UP
+def checkButton(index, isButtonDown, buttonStates, longHoldFeedback):
+    currentTime = timeInMillis()
+    lengthDown = -1
+    event = EVENT_NONE
+    onButtonDownMillis   = buttonStates[0]
+    onButtonLastUpMillis = buttonStates[1]
+    isButtonWaiting      = buttonStates[2]
+
+    longHoldFeedback(onButtonDownMillis[index])
+
+    if isButtonDown == 1 and onButtonDownMillis[index] < 0:
+        onButtonDownMillis[index] = currentTime
+        event += EVENT_KEY_DOWN
+    if isButtonDown == 0 and onButtonDownMillis[index] > 0:
+        longHoldFeedback(0)
+        event += EVENT_KEY_UP
+        lengthDown = currentTime - onButtonDownMillis[index]
+        lengthUp = currentTime - onButtonLastUpMillis[index]
+        onButtonLastUpMillis[index] = currentTime
+        onButtonDownMillis[index] = -1
+        isButtonWaiting[index] = True
+
+        if lengthUp < DOUBLE_GAP:
+            # double press
+            isButtonWaiting[index] = False
+            event += EVENT_DOUBLE_PRESS
+
+    if isButtonWaiting[index] and lengthDown >= EXTRA_LONG_HOLD:
+        #extra long press
+        isButtonWaiting[index] = False
+        event += EVENT_EXTRA_LONG_PRESS
+
+    if isButtonWaiting[index] and lengthDown >= LONG_HOLD:
+        #long press
+        isButtonWaiting[index] = False
+        event += EVENT_LONG_PRESS
+
+    lengthUp = currentTime - onButtonLastUpMillis[index]
+    if isButtonWaiting[index] and lengthUp >= DOUBLE_GAP:
+        #single press
+        isButtonWaiting[index] = False
+        event += EVENT_SINGLE_PRESS
+    return event

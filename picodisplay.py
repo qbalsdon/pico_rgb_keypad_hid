@@ -40,10 +40,10 @@ class PicoDisplay():
                        GPIO_MOSI  = board.GP27,
                        GPIO_CLK   = board.GP26,
                        GPIO_CS    = board.GP21,
-                       GPIO_DC    = board.GP20):
+                       GPIO_DC    = board.GP20,
+                       xButtonPin = board.GP14,
+                       yButtonPin = board.GP15):
                        # If you want to wire them up
-                       # xButtonPin = board.GP14,
-                       # yButtonPin = board.GP15):
                        # aButtonPin = board.GP14,
                        # bButtonPin = board.GP15):
         # Release any resources currently in use for the displays
@@ -67,12 +67,12 @@ class PicoDisplay():
                             height=SCREEN_HEIGHT,
                             rowstart=40, colstart=53)
 
-        # self.xButton = DigitalInOut(xButtonPin)
-        # self.xButton.direction = Direction.INPUT
-        # self.xButton.pull = Pull.UP
-        # self.yButton = DigitalInOut(yButtonPin)
-        # self.yButton.direction = Direction.INPUT
-        # self.yButton.pull = Pull.UP
+        self.xButton = DigitalInOut(xButtonPin)
+        self.xButton.direction = Direction.INPUT
+        self.xButton.pull = Pull.UP
+        self.yButton = DigitalInOut(yButtonPin)
+        self.yButton.direction = Direction.INPUT
+        self.yButton.pull = Pull.UP
 
         # IF YOU WANT TO WIRE THEM UP
         # self.aButton = DigitalInOut(aButtonPin)
@@ -82,11 +82,11 @@ class PicoDisplay():
         # self.bButton.direction = Direction.INPUT
         # self.bButton.pull = Pull.UP
 
-        # self.Buttons = [ self.xButton, self.yButton ]
-        # self.TimeDown = [-1] * DISPLAY_BUTTON_COUNT
-        # self.TimeUp = [-1] * DISPLAY_BUTTON_COUNT
-        # self.Waiting = [False] * DISPLAY_BUTTON_COUNT
-        # self.ButtonStates = [ self.TimeDown, self.TimeUp, self.Waiting ]
+        self.Buttons = [ self.xButton, self.yButton ]
+        self.TimeDown = [-1] * DISPLAY_BUTTON_COUNT
+        self.TimeUp = [-1] * DISPLAY_BUTTON_COUNT
+        self.Waiting = [False] * DISPLAY_BUTTON_COUNT
+        self.ButtonStates = [ self.TimeDown, self.TimeUp, self.Waiting ]
 
     def printInfo():
         print("==============================")
