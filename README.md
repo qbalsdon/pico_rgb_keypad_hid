@@ -65,10 +65,12 @@ I have started storing my custom configurations in a folder called `keyconfig/` 
   - import the configurations: `from keyconfig.[mynewconfig] import *`
   - ensure the array knows about your desired configurations and the order in which you want them to appear: `interfaces = [interfaceOne, interfaceTwo, interfaceThree, mynewconfig]`
   - The code is currently set up to have the default `keypad.py` as the initial interface. Modify this to be whichever interface you want to start with:
+
     ```
     ki = KeypadInterface(kbd, layout, setKeyColour)
     ki.introduce()
     ```
+
   - Inside the main loop, the behaviour to swap between layouts is currently defined as an EVENT_EXTRA_LONG_PRESS on the 16th button. This will invoke the `swapLayout()` method which iterates through your keypad interfaces
   - The `constants.py` file defines the default values, colours, and delay times.
 
@@ -79,7 +81,7 @@ If you would like to use the [Pico Display Pack][PICO_DISPLAY] that I have set u
 1. Ensure you uncomment all the references to the picodisplay in the `code.py` file
 
   - `from picodisplay import *` imports the behvaiour and the custom wiring
-  - both references to `displayMode(ki.getDisplaySettings())` to show the initial screen and when the layouts are swapped
+  - all references to `picoDisplay.render(...)` to show the initial screen and when the layouts are swapped
 2. include the `picodisplay.py` file and the `images/` directory. You will need to copy the other Adafruit `lib/` files across, namely
 
   - `adafruit_display_text/`: for rending text on the display
@@ -104,21 +106,31 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 1. :ballot_box_with_check: Make colours one value instead of a tuple, convert when needed
 1. :black_square_button: Modularise the code for the pimoroni keypad
 1. :ballot_box_with_check: Use the PICO's LED to give a signal that something has happened, i.e. KEYDOWN, HOLD, LONG_HOLD.
-1. :black_square_button: Create a function key keypad (F1, F2, F3 ...)
-1. :black_square_button: Create an android studio keypad (execution window, debug application)
-1. :black_square_button: Add a11y features to adb keypad
 1. :black_square_button: KEY_DOWN / UP colour management
 
-## Keypad configs
+## Keypad behaviour
 
 1. :ballot_box_with_check: Emulate a shift hold.
+1. Help mode
+  - :black_square_button: data representation
+  - :black_square_button: display
+
+### Configurations
+
+1. :black_square_button: Function keys (F1, F2, F3 ...)
+1. :black_square_button: Time management (task logger, reporter etc. Maybe Toggl integration?)
+1. :black_square_button: [MIDI interface][ADAFRUIT_MIDI]
+1. :black_square_button: Android studio (execution window, debug application)
+  - :black_square_button: a11y access
+  - :black_square_button: record screen
+  - :black_square_button: screenshot
 
 ## Display
 
 1. :black_square_button: Use main constants for colours
 1. :black_square_button: Plug in buttons and RGB led
-1. :black_square_button: Determine why the display is so flakey when put on a PCB
-1. :black_square_button: Improve the library to handle `BL_EN`
+1. :ballot_box_with_check: Determine why the display is so flakey when put on a PCB (faulty PICO display screen)
+1. :black_square_button: Improve the library to handle `BL_EN` - PWM pin for linear backlight control
 1. :black_square_button: Consider other [displays][DISPLAY_BREAKOUT]
 
 [UF2]: https://circuitpython.org/board/raspberry_pi_pico/
@@ -136,4 +148,5 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 [ADAFRUIT_DISPLAYIO]: https://learn.adafruit.com/circuitpython-display-support-using-displayio/examples
 [ADAFRUIT_HID]: https://github.com/adafruit/Adafruit_CircuitPython_HID/blob/master/adafruit_hid/
 [ADAFRUIT_HID_CODES]: https://github.com/adafruit/Adafruit_CircuitPython_HID/blob/master/adafruit_hid/keycode.py
+[ADAFRUIT_MIDI]: https://learn.adafruit.com/cpx-midi-controller/circuitpython
 [DISPLAY_BREAKOUT]: https://shop.pimoroni.com/products/1-3-spi-colour-lcd-240x240-breakout

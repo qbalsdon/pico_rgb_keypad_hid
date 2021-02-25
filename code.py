@@ -16,6 +16,8 @@ from adafruit_hid.consumer_control_code import ConsumerControlCode
 from digitalio import DigitalInOut, Direction, Pull
 #------------------------------------
 # from picodisplay import *
+# picoDisplay = PicoDisplay()
+# wallpapers = [picoDisplay.getAndroid, picoDisplay.getTeams, picoDisplay.getDota]
 #------------------------------------
 from constants import *
 from keypad import *
@@ -51,7 +53,7 @@ def swapLayout():
     global currentInterface
     currentInterface = (currentInterface + 1) % len(interfaces)
     ki = interfaces[currentInterface](kbd, layout, setKeyColour)
-    # displayMode(ki.getDisplaySettings())
+    # picoDisplay.render(wallpapers[currentInterface](), 270)
     ki.introduce()
 
 def read_button_states(x, y):
@@ -127,12 +129,14 @@ def checkButton(isPressed, index):
         event += EVENT_SINGLE_PRESS
     return event
 #------------------------------------
+# rainbow = picoDisplay.createRainbow()
+# picoDisplay.render(rainbow, 270)
+#------------------------------------
 ki = KeypadInterface(kbd, layout, setKeyColour)
 ki.introduce()
 #------------------------------------
-# displayMode(ki.getDisplaySettings())
-#------------------------------------
 while True:
+
     pressed = read_button_states(0, BUTTON_COUNT)
 
     for keyIndex in range(BUTTON_COUNT):
