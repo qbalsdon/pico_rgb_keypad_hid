@@ -22,10 +22,6 @@ class KeypadInterface():
 
             time.sleep(0.05)
     #------------------------
-    #----- PICO DISPLAY -----
-    def getDisplaySettings(self):
-        return ("hello", "images/pico.bmp")
-    #------------------------
     #--- REQUIRED METHODS ---
 
     # defines the 'default' and 'pressed' states of the keys

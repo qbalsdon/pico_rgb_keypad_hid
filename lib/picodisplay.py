@@ -175,6 +175,23 @@ class PicoDisplay():
         group.append(self.createText(115, 60, "Teams", COLOUR_WHITE))
         return group
 
+    def getMidi(self):
+        group = self.createGroup()
+
+        palette = displayio.Palette(8)
+        palette[0] = COLOUR_WHITE
+        palette[1] = COLOUR_VIOLET
+        palette[2] = COLOUR_BLUE
+        palette[3] = COLOUR_RED
+        palette[4] = COLOUR_ORANGE
+        palette[5] = COLOUR_GREEN
+        palette[6] = COLOUR_YELLOW
+        palette[7] = COLOUR_BLACK
+        image = self.getImage("images/midi.bmp", palette, 0, 0)
+
+        group.append(image)
+        return group
+
     def getDota(self):
         group = self.createGroup()
         foregroundColour = COLOUR_DOTA

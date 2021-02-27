@@ -43,7 +43,8 @@ If you want to see an example of what the keypad behaviours should do, please us
 1. Do a basic installation
 1. Copy all my python scripts, including `code.py` to the `CIRCUITPY/` directory
 1. Put your custom keypad configurations into the `CIRCUITPY/keyconfig` directory
-1. Choose which configurations you want in [line 38][LINE38] of `code.py`, and use the 16th (bottom-right most) button to switch between them
+1. Choose which configurations you want in [line 32][LINE32] of `code.py`
+1. Assign a method for triggering the `swapLayout()` method. This could be a `EVENT_EXTRA_LONG_PRESS` of a certain key. I have opted to enable a different button entirely, wired to the screen I have attached.
 
 ### keypad configurations
 
@@ -56,7 +57,7 @@ Using the `keypad.py` file as a template, create the custom key mappings you wou
   - EVENT_KEY_DOWN
 
 I have started storing my custom configurations in a folder called `keyconfig/` for simplicity and structure. To manage configurations:
-1. copy `keypad.py` as a new file, give the file a unique name, as well as the class.
+1. copy `lib/keypad.py` as a new file, give the file a unique name, as well as the class.
 2. modify the `handleEvent(self, keyIndex, event)` method to behave the way you want
 3. OPTIONAL STEPS:
   - modify `introduce(self)` to perform an animation of your design on the buttons
@@ -72,7 +73,7 @@ I have started storing my custom configurations in a folder called `keyconfig/` 
     ```
 
   - Inside the main loop, the behaviour to swap between layouts is currently defined as an EVENT_EXTRA_LONG_PRESS on the 16th button. This will invoke the `swapLayout()` method which iterates through your keypad interfaces
-  - The `constants.py` file defines the default values, colours, and delay times.
+  - The `lib/constants.py` file defines the default values, colours, and delay times.
 
 ### Pico Display
 
@@ -82,7 +83,7 @@ If you would like to use the [Pico Display Pack][PICO_DISPLAY] that I have set u
 
   - `from picodisplay import *` imports the behvaiour and the custom wiring (if you want the buttons, wire them up too!)
   - all references to `picoDisplay.render(...)` to show the initial screen and when the layouts are swapped
-2. include the `picodisplay.py` file and the `images/` directory. You will need to copy the other Adafruit `lib/` files across, namely
+2. include the `lib/picodisplay.py` file and the `images/` directory. You will need to copy the other Adafruit `lib/` files across, namely
 
   - `adafruit_display_text/`: for rending text on the display
   - `adafruit_imageload/`: allows images to be loaded into memory for faster reference.
@@ -129,12 +130,12 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 
 ## Display
 
-1. :black_square_button: Use main constants for colours
-1. :black_square_button: Plug in buttons and RGB led
+1. :ballot_box_with_check: Use main constants for colours
+1. :ballot_box_with_check: Plug in buttons and RGB led
   - :ballot_box_with_check: Button code done
 1. :ballot_box_with_check: Determine why the display is so flakey when put on a PCB (faulty PICO display screen)
 1. :black_square_button: Improve the library to handle `BL_EN` - PWM pin for linear backlight control
-1. :black_square_button: Consider other [displays][DISPLAY_BREAKOUT]
+1. :ballot_box_with_check: Consider other [displays][DISPLAY_BREAKOUT]
 
 ## RGB Rotary Encoder
 
