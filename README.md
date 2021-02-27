@@ -6,9 +6,9 @@
 
 1. Flash your PICO with the Circuit Python uf2 file. [ORIGINAL FILE][UF2]
 1. Download the Circuit Python bundle files. [adafruit-circuitpython-bundle-py-20210214.zip][BUNDLE_FILES]
-  1. Create a `lib/` directory on your PICO
-  1. Copy all `lib/adafruit_hid` folder to `CIRCUITPY/lib/`
-  1. Copy the `lib/adafruit_dotstar.py` file to `CIRCUITPY/lib/adafruit_dotstar.py`
+   1. Create a `lib/` directory on your PICO
+   1. Copy all `lib/adafruit_hid` folder to `CIRCUITPY/lib/`
+   1. Copy the `lib/adafruit_dotstar.py` file to `CIRCUITPY/lib/adafruit_dotstar.py`
 
 ![Structure](readme_images/directory.png)
 
@@ -60,33 +60,31 @@ I have started storing my custom configurations in a folder called `keyconfig/` 
 1. copy `lib/keypad.py` as a new file, give the file a unique name, as well as the class.
 2. modify the `handleEvent(self, keyIndex, event)` method to behave the way you want
 3. OPTIONAL STEPS:
-  - modify `introduce(self)` to perform an animation of your design on the buttons
-  - alter `getKeyColours(self)` to define a two-dimensional array: `[0]` being the 'resting state' and `[1]` being the 'active' state
+   - modify `introduce(self)` to perform an animation of your design on the buttons
+   - alter `getKeyColours(self)` to define a two-dimensional array: `[0]` being the 'resting state' and `[1]` being the 'active' state
 4. in `code.py`
-  - import the configurations: `from keyconfig.[mynewconfig] import *`
-  - ensure the array knows about your desired configurations and the order in which you want them to appear: `interfaces = [interfaceOne, interfaceTwo, interfaceThree, mynewconfig]`
-  - The code is currently set up to have the default `keypad.py` as the initial interface. Modify this to be whichever interface you want to start with:
+   - import the configurations: `from keyconfig.[mynewconfig] import *`
+   - ensure the array knows about your desired configurations and the order in which you want them to appear: `interfaces = [interfaceOne, interfaceTwo, interfaceThree, mynewconfig]`
+   - The code is currently set up to have the default `keypad.py` as the initial interface. Modify this to be whichever interface you want to start with:
 
-    ```
-    ki = KeypadInterface(kbd, layout, setKeyColour)
-    ki.introduce()
-    ```
+      ```
+      ki = KeypadInterface(kbd, layout, setKeyColour)
+      ki.introduce()
+      ```
 
-  - Inside the main loop, the behaviour to swap between layouts is currently defined as an EVENT_EXTRA_LONG_PRESS on the 16th button. This will invoke the `swapLayout()` method which iterates through your keypad interfaces
-  - The `lib/constants.py` file defines the default values, colours, and delay times.
+   - Inside the main loop, the behaviour to swap between layouts is currently defined as an EVENT_EXTRA_LONG_PRESS on the 16th button. This will invoke the `swapLayout()` method which iterates through your keypad interfaces
+   - The `lib/constants.py` file defines the default values, colours, and delay times.
 
 ### Pico Display
 
 If you would like to use the [Pico Display Pack][PICO_DISPLAY] that I have set up, refer to the wiring diagram below. This is due to the keypad already using the `LCD_MOSI`, `LCD_SCLK`, `LCD_CS` and `LCD_DC` pins. Also because the library is in CircuitPython, the `reset` pin needs to be moved as well (CP has no knowledge of the Pico specifics).
 ![Structure](readme_images/display_wiring.png)
 1. Ensure you uncomment all the references to the picodisplay in the `code.py` file
-
-  - `from picodisplay import *` imports the behvaiour and the custom wiring (if you want the buttons, wire them up too!)
-  - all references to `picoDisplay.render(...)` to show the initial screen and when the layouts are swapped
+   - `from picodisplay import *` imports the behvaiour and the custom wiring (if you want the buttons, wire them up too!)
+   - all references to `picoDisplay.render(...)` to show the initial screen and when the layouts are swapped
 2. include the `lib/picodisplay.py` file and the `images/` directory. You will need to copy the other Adafruit `lib/` files across, namely
-
-  - `adafruit_display_text/`: for rending text on the display
-  - `adafruit_imageload/`: allows images to be loaded into memory for faster reference.
+   - `adafruit_display_text/`: for rending text on the display
+   - `adafruit_imageload/`: allows images to be loaded into memory for faster reference.
 
 3. Read more about how to use the library [here][ADAFRUIT_DISPLAYIO]
 
@@ -107,7 +105,7 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 
 1. :ballot_box_with_check: Make colours one value instead of a tuple, convert when needed
 1. :black_square_button: Modularise the code for the pimoroni keypad
-  - :ballot_box_with_check: Moved the code for button press checks into `constants.py`
+   - :ballot_box_with_check: Moved the code for button press checks into `constants.py`
 1. :ballot_box_with_check: Use the PICO's LED to give a signal that something has happened, i.e. KEYDOWN, HOLD, LONG_HOLD.
 1. :black_square_button: KEY_DOWN / UP colour management
 
@@ -115,8 +113,8 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 
 1. :ballot_box_with_check: Emulate a shift hold.
 1. Help mode
-  - :black_square_button: data representation
-  - :black_square_button: display
+   - :black_square_button: data representation
+   - :black_square_button: display
 
 ### Configurations
 
@@ -124,9 +122,9 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 1. :black_square_button: Time management ([task logger][DATA_LOGGER], reporter etc. Maybe Toggl integration?)
 1. :black_square_button: [MIDI interface][ADAFRUIT_MIDI]
 1. :black_square_button: Android studio (execution window, debug application)
-  - :black_square_button: a11y access
-  - :black_square_button: record screen
-  - :black_square_button: screenshot
+   - :black_square_button: a11y access
+   - :black_square_button: record screen
+   - :black_square_button: screenshot
 
 ## Display
 
@@ -140,10 +138,10 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 ## RGB Rotary Encoder
 
 1. Added code for RGB Rotary Encoder
-  - :ballot_box_with_check: Common anode RGB led class in `lib/rgbled.py`
-  - :ballot_box_with_check: Rotary encoder class in `lib/rotaryencoder.py`
-  - :ballot_box_with_check: Example usage in `example_rgb_rotary_encoder.py`
-  - :ballot_box_with_check: [Documentation on the blog][BLOG_RGB_ROTARY_ENCODER]
+   - :ballot_box_with_check: Common anode RGB led class in `lib/rgbled.py`
+   - :ballot_box_with_check: Rotary encoder class in `lib/rotaryencoder.py`
+   - :ballot_box_with_check: Example usage in `example_rgb_rotary_encoder.py`
+   - :ballot_box_with_check: [Documentation on the blog][BLOG_RGB_ROTARY_ENCODER]
 
 [UF2]: https://circuitpython.org/board/raspberry_pi_pico/
 [BUNDLE_FILES]: https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases
