@@ -21,7 +21,7 @@ A big thank you to [wildestpixel][WILDESTPIXEL] and the [code they made][CODEPY]
 
 ## Notes:
 
-1. This is in [CircuitPython][CIRCUITPYTHON], please use that as a basis for code questions.
+1. This is in [CircuitPython][CIRCUITPYTHON], please use that as a basis for code questions. [I wish I had read this][WHAT_IS_CIRCUITPYTHON]
 1. Saving files to the `CIRCUITPY` folder will automatically trigger a restart and deploy `code.py`
 1. Using the Arduino Serial Monitor to debug has been super useful and was a complete "by chance" discovery
 1. This repo is going to be changing (hopefully) rapidly, I'm new to [Insert Brand Name Here]Python and electronics, my main experience in this area has been minor doses of nodejs on a Raspberry Pi.
@@ -80,7 +80,7 @@ If you would like to use the [Pico Display Pack][PICO_DISPLAY] that I have set u
 ![Structure](readme_images/display_wiring.png)
 1. Ensure you uncomment all the references to the picodisplay in the `code.py` file
 
-  - `from picodisplay import *` imports the behvaiour and the custom wiring
+  - `from picodisplay import *` imports the behvaiour and the custom wiring (if you want the buttons, wire them up too!)
   - all references to `picoDisplay.render(...)` to show the initial screen and when the layouts are swapped
 2. include the `picodisplay.py` file and the `images/` directory. You will need to copy the other Adafruit `lib/` files across, namely
 
@@ -98,6 +98,7 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 1. [Adafruit Hardware Interface Device (HID)][ADAFRUIT_HID] - making the board behave like a keyboard
 1. [Adafruit HID keycodes][ADAFRUIT_HID_CODES] - quick reference for default key values
 1. [Adafruit Circuit Python displayio library][ADAFRUIT_DISPLAYIO]
+1. [Circuit Python fonts][ADAFRUIT_FONTS]
 
 # My ever-growing todo list
 
@@ -119,7 +120,7 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 ### Configurations
 
 1. :black_square_button: Function keys (F1, F2, F3 ...)
-1. :black_square_button: Time management (task logger, reporter etc. Maybe Toggl integration?)
+1. :black_square_button: Time management ([task logger][DATA_LOGGER], reporter etc. Maybe Toggl integration?)
 1. :black_square_button: [MIDI interface][ADAFRUIT_MIDI]
 1. :black_square_button: Android studio (execution window, debug application)
   - :black_square_button: a11y access
@@ -135,6 +136,14 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 1. :black_square_button: Improve the library to handle `BL_EN` - PWM pin for linear backlight control
 1. :black_square_button: Consider other [displays][DISPLAY_BREAKOUT]
 
+## RGB Rotary Encoder
+
+1. Added code for RGB Rotary Encoder
+  - :ballot_box_with_check: Common anode RGB led class in `lib/rgbled.py`
+  - :ballot_box_with_check: Rotary encoder class in `lib/rotaryencoder.py`
+  - :ballot_box_with_check: Example usage in `example_rgb_rotary_encoder.py`
+  - :ballot_box_with_check: [Documentation on the blog][BLOG_RGB_ROTARY_ENCODER]
+
 [UF2]: https://circuitpython.org/board/raspberry_pi_pico/
 [BUNDLE_FILES]: https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases
 [CODEPY]: https://gist.github.com/wildestpixel/6b684b8bc886392f7c4c57015fab3d97
@@ -149,6 +158,10 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 [LINE38]: https://github.com/qbalsdon/pico_rgb_keypad_hid/blob/8f63c366559465032fa30e0789f4867cd539c37c/code.py#L38
 [ADAFRUIT_DISPLAYIO]: https://learn.adafruit.com/circuitpython-display-support-using-displayio/examples
 [ADAFRUIT_HID]: https://github.com/adafruit/Adafruit_CircuitPython_HID/blob/master/adafruit_hid/
+[ADAFRUIT_FONTS]: https://learn.adafruit.com/custom-fonts-for-pyportal-circuitpython-display
 [ADAFRUIT_HID_CODES]: https://github.com/adafruit/Adafruit_CircuitPython_HID/blob/master/adafruit_hid/keycode.py
 [ADAFRUIT_MIDI]: https://learn.adafruit.com/cpx-midi-controller/circuitpython
 [DISPLAY_BREAKOUT]: https://shop.pimoroni.com/products/1-3-spi-colour-lcd-240x240-breakout
+[DATA_LOGGER]: https://learn.adafruit.com/getting-started-with-raspberry-pi-pico-circuitpython/data-logger
+[WHAT_IS_CIRCUITPYTHON]: https://learn.adafruit.com/getting-started-with-raspberry-pi-pico-circuitpython/micropython-or-circuitpython
+[BLOG_RGB_ROTARY_ENCODER]: https://qbalsdon.github.io/circuitpython/rotary-encoder/python/led/2021/02/27/rgb-rotary-encoder.html

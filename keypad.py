@@ -31,22 +31,22 @@ class KeypadInterface():
     # defines the 'default' and 'pressed' states of the keys
     def getKeyColours(self):
         return (
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_OFF, COLOUR_CLEAR),
-            (COLOUR_YELLOW, COLOUR_WHITE)
+            (COLOUR_RED, COLOUR_WHITE),
+            (COLOUR_ORANGE, COLOUR_WHITE),
+            (COLOUR_YELLOW, COLOUR_WHITE),
+            (COLOUR_GREEN, COLOUR_WHITE),
+            (COLOUR_ORANGE, COLOUR_WHITE),
+            (COLOUR_YELLOW, COLOUR_WHITE),
+            (COLOUR_GREEN, COLOUR_WHITE),
+            (COLOUR_BLUE, COLOUR_WHITE),
+            (COLOUR_YELLOW, COLOUR_WHITE),
+            (COLOUR_GREEN, COLOUR_WHITE),
+            (COLOUR_BLUE, COLOUR_WHITE),
+            (COLOUR_INDIGO, COLOUR_WHITE),
+            (COLOUR_GREEN, COLOUR_WHITE),
+            (COLOUR_BLUE, COLOUR_WHITE),
+            (COLOUR_INDIGO, COLOUR_WHITE),
+            (COLOUR_VIOLET, COLOUR_WHITE)
         )
 
     def __init__(self, keyboard, keyboardLayout, setKeyColour):
