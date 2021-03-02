@@ -2,16 +2,15 @@ import time
 from constants import *
 from adafruit_hid.keycode import Keycode
 
-class DotAKeypadInterface():
+class DotAKeypad():
     #--- OPTIONAL METHODS ---
-    def dotaIntro(self):
+    def dotaIntro(self, frameIndex):
         global image
-        self.resetColours(COLOUR_OFF)
-
-        for index in (10, 9, 5, 6, 7, 11, 15, 14, 13, 12, 8, 4, 0, 1, 2, 3):
-            self.setKeyColour(index, self.IMAGE[index])
-            time.sleep(0.05)
-        time.sleep(0.25)
+        frameArray = [10, 9, 5, 6, 7, 11, 15, 14, 13, 12, 8, 4, 0, 1, 2, 3]
+        if frameIndex >= len(frameArray):
+            return
+        index = frameArray[frameIndex]
+        self.setKeyColour(index, self.IMAGE[index])
 
     #------------------------
     #----- PICO DISPLAY -----
@@ -25,6 +24,18 @@ class DotAKeypadInterface():
         COLOUR_RED, COLOUR_WHITE, COLOUR_RED, COLOUR_RED,
         COLOUR_RED, COLOUR_RED, COLOUR_RED, COLOUR_WHITE
     ]
+
+    def loop(self):
+        if self.startAnimationTime > 0:
+            estimatedFrame = int((timeInMillis() - self.startAnimationTime) / (ANIMATION_FRAME_MILLIS * 2))
+            if estimatedFrame > self.currentFrame:
+                # render new animation frame
+                self.dotaIntro(self.frameIndex)
+                self.frameIndex += 1
+                # print("  ~~> Animation frame: ", estimatedFrame)
+                self.currentFrame = estimatedFrame
+                if self.frameIndex > self.maxFrame:
+                    self.startAnimationTime = -1
 
     def getKeyColours(self):
         return (
@@ -52,9 +63,11 @@ class DotAKeypadInterface():
         self.keyboardLayout= keyboardLayout
 
     def introduce(self):
-        self.dotaIntro()
-        self.resetColours(self.getKeyColours())
-        time.sleep(0.2)
+        self.resetColours(COLOUR_OFF)
+        self.startAnimationTime = timeInMillis()
+        self.currentFrame = -1
+        self.maxFrame = 16
+        self.frameIndex = 0
 
     def resetColours(self, colours):
         for key in range(BUTTON_COUNT):

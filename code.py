@@ -15,9 +15,11 @@ from adafruit_hid.consumer_control_code import ConsumerControlCode
 
 from digitalio import DigitalInOut, Direction, Pull
 #------------------------------------
-# from picodisplay import *
-# picoDisplay = PicoDisplay()
-# wallpapers = [picoDisplay.getAndroid, picoDisplay.getTeams, picoDisplay.getDota]
+USE_DISPLAY = False
+if USE_DISPLAY:
+    from picodisplay import *
+    picoDisplay = PicoDisplay()
+    wallpapers = [ picoDisplay.getAndroid, picoDisplay.getTeams, picoDisplay.getDota ]
 #------------------------------------
 from constants import *
 from keypad import *
@@ -25,13 +27,21 @@ from keyconfig.adb import *
 from keyconfig.teams import *
 from keyconfig.dota import *
 #------------------------------------
-for _ in range(1000):
+for _ in range(10):
     print(" ")
 print("  ============ NEW EXECUTION ============  ")
 #------------------------------------
-interfaces = [AdbKeypadInterface, TeamsKeypadInterface, DotAKeypadInterface]
+interfaces = [ AdbKeypad, TeamsKeypad, DotAKeypad ]
 currentInterface = -1
 #------------------------------------
+
+# CS  : GP17 - 22
+# SCLK: GP18 - 24
+# MOSI: GP19 - 25
+# ----- I2C -----
+# INT : GP3  - 05 ? Not used!
+# SDA : GP4  - 06
+# SCL : GP5  - 07
 cs = DigitalInOut(board.GP17)
 cs.direction = Direction.OUTPUT
 cs.value = 0
@@ -54,12 +64,13 @@ def setKeyColour(pixel, colour):
     pixels[pixel] = (((colour >> 16) & 255), (colour >> 8) & 255, colour & 255)
 
 def swapLayout():
-    global ki
+    global currentKeypadConfiguration
     global currentInterface
     currentInterface = (currentInterface + 1) % len(interfaces)
-    ki = interfaces[currentInterface](kbd, layout, setKeyColour)
-    # picoDisplay.render(wallpapers[currentInterface](), 270)
-    ki.introduce()
+    currentKeypadConfiguration = interfaces[currentInterface](kbd, layout, setKeyColour)
+    currentKeypadConfiguration.introduce()
+    if USE_DISPLAY:
+        picoDisplay.render(wallpapers[currentInterface](), 270)
 
 def read_button_states(x, y):
     pressed = [0] * BUTTON_COUNT
@@ -82,23 +93,26 @@ def checkHeldForFlash(heldDownStartMillis):
     else:
         picoLED.value = 0
 #------------------------------------
-# rainbow = picoDisplay.createRainbow()
-# picoDisplay.render(rainbow, 270)
+if USE_DISPLAY:
+    rainbow = picoDisplay.createRainbow()
+    picoDisplay.render(rainbow, 270)
 #------------------------------------
-ki = KeypadInterface(kbd, layout, setKeyColour)
-ki.introduce()
+currentKeypadConfiguration = KeypadInterface(kbd, layout, setKeyColour)
+currentKeypadConfiguration.introduce()
 #------------------------------------
 while True:
-    # for displayKeyIndex in range(DISPLAY_BUTTON_COUNT):
-    #     buttonValue = checkButton(displayKeyIndex,
-    #                         not picoDisplay.Buttons[displayKeyIndex].value,
-    #                         picoDisplay.ButtonStates,
-    #                         checkHeldForFlash)
-    #     if displayKeyIndex == 0 and buttonValue & EVENT_SINGLE_PRESS:
-    #         swapLayout()
+    currentKeypadConfiguration.loop()
+    if USE_DISPLAY:
+        for displayKeyIndex in range(DISPLAY_BUTTON_COUNT):
+            buttonValue = checkButton(displayKeyIndex,
+                                not picoDisplay.Buttons[displayKeyIndex].value,
+                                picoDisplay.ButtonStates,
+                                checkHeldForFlash)
+            if displayKeyIndex == 0 and buttonValue & EVENT_SINGLE_PRESS:
+                swapLayout()
 
     pressed = read_button_states(0, BUTTON_COUNT)
 
     for keyIndex in range(BUTTON_COUNT):
         event = checkButton(keyIndex, pressed[keyIndex], keypadButtonStates, checkHeldForFlash)
-        ki.handleEvent(keyIndex, event)
+        currentKeypadConfiguration.handleEvent(keyIndex, event)

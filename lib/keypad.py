@@ -3,24 +3,19 @@ from constants import *
 
 class KeypadInterface():
     #--- OPTIONAL METHODS ---
-    def tasteTheRainbow(self, loops):
+    def tasteTheRainbow(self, index):
         RAINBOW = [COLOUR_RED, COLOUR_ORANGE, COLOUR_YELLOW, COLOUR_GREEN, COLOUR_BLUE, COLOUR_INDIGO, COLOUR_VIOLET]
         DIAG = [[0],[1,4],[2,5,8],[3,6,9,12],[7,10,13],[11,14],[15]]
-        self.resetColours(self.getKeyColours())
-
-        for index in range (1, len(RAINBOW) * (loops + 1)):
-            currentColourIndex = 0
-            for snakeIndex in range(index - (len(RAINBOW)), index):
-                if snakeIndex >=0:
-                    currentIndex = snakeIndex % len(DIAG)
-                    currentDiag = DIAG[currentIndex]
-                    currentColour = RAINBOW[currentColourIndex]
-                    for button in currentDiag:
-                        self.setKeyColour(button, currentColour)
-                    currentIndex-=1
-                    currentColourIndex+=1
-
-            time.sleep(0.05)
+        currentColourIndex = 0
+        for snakeIndex in range(index - (len(RAINBOW)), index):
+            if snakeIndex >=0:
+                currentIndex = snakeIndex % len(DIAG)
+                currentDiag = DIAG[currentIndex]
+                currentColour = RAINBOW[currentColourIndex]
+                for button in currentDiag:
+                    self.setKeyColour(button, currentColour)
+                currentIndex-=1
+                currentColourIndex+=1
     #------------------------
     #--- REQUIRED METHODS ---
 
@@ -45,16 +40,29 @@ class KeypadInterface():
             (COLOUR_VIOLET, COLOUR_WHITE)
         )
 
+    def loop(self):
+        if self.startAnimationTime > 0:
+            estimatedFrame = int((timeInMillis() - self.startAnimationTime) / ANIMATION_FRAME_MILLIS)
+            if estimatedFrame > self.currentFrame:
+                # render new animation frame
+                self.tasteTheRainbow(estimatedFrame)
+                # print("  ~~> Animation frame: ", estimatedFrame)
+                self.currentFrame = estimatedFrame
+                if self.currentFrame >= self.maxFrame:
+                    self.startAnimationTime = -1
+                    self.resetColours(self.getKeyColours())
+
     def __init__(self, keyboard, keyboardLayout, setKeyColour):
         self.setKeyColour = setKeyColour
         self.keyboard = keyboard
         self.keyboardLayout= keyboardLayout
+        self.startAnimationTime = -1
 
     # does the animation for the keys
     def introduce(self):
-        self.tasteTheRainbow(5)
-        self.resetColours(self.getKeyColours())
-        time.sleep(0.2)
+        self.startAnimationTime = timeInMillis()
+        self.currentFrame = -1
+        self.maxFrame = 42
 
     # sets the colours of the keys back to the resting state
     def resetColours(self, colours):

@@ -2,7 +2,7 @@ import time
 from constants import *
 from adafruit_hid.keycode import Keycode
 
-class AdbKeypadInterface():
+class AdbKeypad():
     #--- OPTIONAL METHODS ---
     showTerminalDialog="osascript -e 'display dialog \"Can you see a dialog with 2 buttons?\" buttons {\"Ok\", \"Cancel\"} default button \"Ok\"'"
     loadDevice              = "pkill scrcpy; sleep 0.1 && sh unlockWithSwipe -p 314159 && scrcpy -Sw &"
@@ -20,22 +20,12 @@ class AdbKeypadInterface():
         self.keyboard.send(Keycode.RETURN)
         time.sleep(KEYBOARD_DELAY)
 
-    def androidAdbIntro(self):
-        self.resetColours(COLOUR_OFF)
-
-        time.sleep(0.2)
-        for col in range(4):
-            for row in range(4):
-                index = (row * 4) + col
-                self.setKeyColour(index, self.IMAGE[index])
-            time.sleep(ANIMATION_FRAME)
-
-        time.sleep(ANIMATION_WAIT)
-
-    #------------------------
-    #----- PICO DISPLAY -----
-    def getDisplaySettings(self):
-        return ("android", "images/android.bmp")
+    def androidAdbIntro(self, frame):
+        if frame >= 4:
+            return
+        for row in range(4):
+            index = (row * 4) + frame
+            self.setKeyColour(index, self.IMAGE[index])
     #------------------------
     #--- REQUIRED METHODS ---
     IMAGE = [
@@ -44,6 +34,19 @@ class AdbKeypadInterface():
         COLOUR_WHITE, COLOUR_GREEN, COLOUR_GREEN, COLOUR_GREEN,
         COLOUR_GREEN, COLOUR_GREEN, COLOUR_GREEN, COLOUR_GREEN
         ]
+
+    def loop(self):
+        if self.startAnimationTime > 0:
+            estimatedFrame = int((timeInMillis() - self.startAnimationTime) / (ANIMATION_FRAME_MILLIS * 2))
+            if estimatedFrame > self.currentFrame:
+                # render new animation frame
+                self.androidAdbIntro(self.frameIndex)
+                self.frameIndex += 1
+                # print("  ~~> Animation frame: ", estimatedFrame)
+                self.currentFrame = estimatedFrame
+                if self.frameIndex >= self.maxFrame:
+                    self.startAnimationTime = -1
+
 
     def getKeyColours(self):
         return (
@@ -71,9 +74,11 @@ class AdbKeypadInterface():
         self.keyboardLayout= keyboardLayout
 
     def introduce(self):
-        self.androidAdbIntro()
-        self.resetColours(self.getKeyColours())
-        time.sleep(0.1)
+        self.resetColours(COLOUR_OFF)
+        self.startAnimationTime = timeInMillis()
+        self.currentFrame = -1
+        self.maxFrame = 4
+        self.frameIndex = 0
 
     def resetColours(self, colours):
         for key in range(BUTTON_COUNT):

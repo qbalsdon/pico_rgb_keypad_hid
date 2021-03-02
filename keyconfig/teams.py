@@ -2,17 +2,15 @@ import time
 from constants import *
 from adafruit_hid.keycode import Keycode
 
-class TeamsKeypadInterface():
+class TeamsKeypad():
     #--- OPTIONAL METHODS ---
-    def teamsIntro(self):
-        self.resetColours(COLOUR_OFF)
 
-        for col in range(4):
-            for row in range(4):
-                index = (col * 4) + row
-                self.setKeyColour(index, self.IMAGE[index])
-            time.sleep(0.15)
-        time.sleep(0.25)
+    def teamsIntro(self, frame):
+        if frame >= 4:
+            return
+        for row in range(4):
+            index = (frame * 4) + row
+            self.setKeyColour(index, self.IMAGE[index])
 
     def teamsMicToggle(self):
         self.keyboard.send(Keycode.COMMAND, Keycode.SHIFT, Keycode.M)
@@ -22,10 +20,6 @@ class TeamsKeypadInterface():
         self.keyboard.send(Keycode.COMMAND, Keycode.SHIFT, Keycode.B)
 
     #------------------------
-    #----- PICO DISPLAY -----
-    def getDisplaySettings(self):
-        return ("teams", "images/teams.bmp")
-    #------------------------
     #--- REQUIRED METHODS ---
     IMAGE = [
             COLOUR_WHITE, COLOUR_WHITE, COLOUR_WHITE, COLOUR_WHITE,
@@ -33,6 +27,18 @@ class TeamsKeypadInterface():
             COLOUR_WHITE, COLOUR_WHITE, COLOUR_INDIGO, COLOUR_WHITE,
             COLOUR_WHITE, COLOUR_WHITE, COLOUR_INDIGO, COLOUR_WHITE
         ]
+
+    def loop(self):
+        if self.startAnimationTime > 0:
+            estimatedFrame = int((timeInMillis() - self.startAnimationTime) / (ANIMATION_FRAME_MILLIS * 2))
+            if estimatedFrame > self.currentFrame:
+                # render new animation frame
+                self.teamsIntro(self.frameIndex)
+                self.frameIndex += 1
+                # print("  ~~> Animation frame: ", estimatedFrame)
+                self.currentFrame = estimatedFrame
+                if self.frameIndex >= self.maxFrame:
+                    self.startAnimationTime = -1
 
     def getKeyColours(self):
         return (
@@ -60,9 +66,11 @@ class TeamsKeypadInterface():
         self.keyboardLayout= keyboardLayout
 
     def introduce(self):
-        self.teamsIntro()
-        self.resetColours(self.getKeyColours())
-        time.sleep(0.2)
+        self.resetColours(COLOUR_OFF)
+        self.startAnimationTime = timeInMillis()
+        self.currentFrame = -1
+        self.maxFrame = 4
+        self.frameIndex = 0
 
     def resetColours(self, colours):
         for key in range(BUTTON_COUNT):
