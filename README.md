@@ -113,7 +113,7 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 
 1. :ballot_box_with_check: Emulate a shift hold.
 1. Help mode
-   - :black_square_button: data representation
+   - :ballot_box_with_check: data representation
    - :black_square_button: display
 1. :ballot_box_with_check: Remove delays from animation
 
@@ -133,7 +133,7 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 1. :ballot_box_with_check: Plug in buttons and RGB led
    - :ballot_box_with_check: Button code done
 1. :ballot_box_with_check: Determine why the display is so flakey when put on a PCB (faulty PICO display screen)
-1. :black_square_button: Improve the library to handle `BL_EN` - PWM pin for linear backlight control
+1. :ballot_box_with_check: Improve the library to handle `BL_EN` - PWM pin for linear backlight control
 1. :ballot_box_with_check: Consider other [displays][DISPLAY_BREAKOUT]
 1. :ballot_box_with_check: Made the usage of the display a flag
 
