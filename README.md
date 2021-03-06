@@ -114,6 +114,9 @@ Download the files for 3D Printing a case [from thingiverse][THINGIVERSE_CASE]
 1. :ballot_box_with_check: Emulate a shift hold.
 1. Help mode
    - :ballot_box_with_check: data representation
+      - :black_square_button: adb keypad
+      - :black_square_button: teams keypad
+      - :black_square_button: dota keypad
    - :black_square_button: display
 1. :ballot_box_with_check: Remove delays from animation
 
