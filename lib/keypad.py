@@ -1,10 +1,11 @@
 import time
 from constants import *
 
+RAINBOW = [COLOUR_RED, COLOUR_ORANGE, COLOUR_YELLOW, COLOUR_GREEN, COLOUR_BLUE, COLOUR_INDIGO, COLOUR_VIOLET]
+
 class KeypadInterface():
     #--- OPTIONAL METHODS ---
     def tasteTheRainbow(self, index):
-        RAINBOW = [COLOUR_RED, COLOUR_ORANGE, COLOUR_YELLOW, COLOUR_GREEN, COLOUR_BLUE, COLOUR_INDIGO, COLOUR_VIOLET]
         DIAG = [[0],[1,4],[2,5,8],[3,6,9,12],[7,10,13],[11,14],[15]]
         currentColourIndex = 0
         for snakeIndex in range(index - (len(RAINBOW)), index):
@@ -59,10 +60,10 @@ class KeypadInterface():
         self.startAnimationTime = -1
 
     # does the animation for the keys
-    def introduce(self):
+    def introduce(self, loops = 5):
         self.startAnimationTime = timeInMillis()
         self.currentFrame = -1
-        self.maxFrame = 42
+        self.maxFrame = (loops + 1) * len(RAINBOW)
 
     # sets the colours of the keys back to the resting state
     def resetColours(self, colours):
@@ -71,6 +72,26 @@ class KeypadInterface():
                 self.setKeyColour(key, colours)
             elif len(colours) == BUTTON_COUNT:
                 self.setKeyColour(key, colours[key][0])
+
+    # get the help message for a particular key
+    # index - the key index [0-15]
+    # event - one of the defined event types [optional]
+    def helpForKey(self, index, event = None):
+        self.help = (
+            ("Press event","Double Press Event","Hold Event","Long Hold Event"),
+        )
+        if event == None:
+            return self.help[0]
+        else:
+            button = 0
+            if event & EVENT_SINGLE_PRESS:
+                return self.help[button][0]
+            elif event & EVENT_DOUBLE_PRESS:
+                return self.help[button][1]
+            elif event & EVENT_LONG_PRESS:
+                return self.help[button][2]
+            elif event & EVENT_EXTRA_LONG_PRESS:
+                return self.help[button][3]
 
     # defines the behvaiour of each key
     #    keyIndex: [0-15] which key has had an event
@@ -88,7 +109,7 @@ class KeypadInterface():
     def handleEvent(self, keyIndex, event):
         if event & EVENT_SINGLE_PRESS:
             print("  ~~> [", keyIndex, "] single press")
-            self.tasteTheRainbow(keyIndex)
+            self.introduce(keyIndex)
             self.resetColours(self.getKeyColours())
         elif event & EVENT_DOUBLE_PRESS:
             print("  ~~> [", keyIndex, "] double press")
