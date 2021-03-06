@@ -77,7 +77,7 @@ I have started storing my custom configurations in a folder called `keyconfig/` 
 
 ### Pico Display
 
-If you would like to use the [Pico Display Pack][PICO_DISPLAY] that I have set up, refer to the wiring diagram below. This is due to the keypad already using the `LCD_MOSI`, `LCD_SCLK`, `LCD_CS` and `LCD_DC` pins. Also because the library is in CircuitPython, the `reset` pin needs to be moved as well (CP has no knowledge of the Pico specifics).
+If you would like to use the [Pico Display Pack][PICO_DISPLAY] that I have set up, refer to the wiring diagram below. This is due to the keypad already using the `LCD_MOSI`, `LCD_SCLK`, `LCD_CS` and `LCD_DC` pins. It is entirely optional to connect the `RESET` pin to the Pico's `RUN` pin (no GPIO, but pin number **40**).
 ![Structure](readme_images/display_wiring.png)
 1. Ensure you uncomment all the references to the picodisplay in the `code.py` file
    - `from picodisplay import *` imports the behvaiour and the custom wiring (if you want the buttons, wire them up too!)
