@@ -11,7 +11,7 @@ Connection between Pico and
 the IPS screen, with ST7789 SPI interface.
 GP21 - CS
 GP20 - DC
-GP22 - RES
+GP22 - RES --> REALLY want this in "Run"
 GP26 - SDA
 GP27 - SCL
 3V3  - VCC
@@ -27,6 +27,7 @@ import busio
 from adafruit_display_text import label
 import adafruit_imageload
 import adafruit_st7789
+from pwmio import PWMOut
 
 from digitalio import DigitalInOut, Direction, Pull
 
@@ -35,17 +36,22 @@ from constants import *
 # REMEMBER THIS ONE IF YOU WIRE UP THE OTHER BUTTONS!!
 DISPLAY_BUTTON_COUNT = 2
 
+PWM_FREQ  = 5000
+DIM_VALUE = 65535
+
 class PicoDisplay():
-    def __init__(self, GPIO_RESET = board.GP22,
-                       GPIO_MOSI  = board.GP27,
-                       GPIO_CLK   = board.GP26,
-                       GPIO_CS    = board.GP21,
-                       GPIO_DC    = board.GP20,
-                       xButtonPin = board.GP14,
-                       yButtonPin = board.GP15):
-                       # If you want to wire them up
-                       # aButtonPin = board.GP14,
-                       # bButtonPin = board.GP15):
+    def __init__(self, GPIO_RESET     = None,
+                       GPIO_MOSI      = board.GP27,
+                       GPIO_CLK       = board.GP26,
+                       GPIO_CS        = board.GP21,
+                       GPIO_DC        = board.GP20,
+                       GPIO_BL        = board.GP22,
+                       DISPLAY_WIDTH  = 135,
+                       DISPLAY_HEIGHT = 240,
+                       xButtonPin     = board.GP14,
+                       yButtonPin     = board.GP15,
+                       aButtonPin     = None, #board.GP14,
+                       bButtonPin     = None): #board.GP15):
         # Release any resources currently in use for the displays
         displayio.release_displays()
                                    # COLOUR     ORIGINAL TYPE
@@ -61,32 +67,42 @@ class PicoDisplay():
         self.display_bus = displayio.FourWire(
             self.spi, command=self.tft_dc, chip_select=self.tft_cs, reset=self.tft_res
         )
+        self.SCREEN_WIDTH = DISPLAY_WIDTH
+        self.SCREEN_HEIGHT = DISPLAY_HEIGHT
 
         self.display = adafruit_st7789.ST7789(self.display_bus,
-                            width=SCREEN_WIDTH,
-                            height=SCREEN_HEIGHT,
+                            width=DISPLAY_WIDTH,
+                            height=DISPLAY_HEIGHT,
                             rowstart=40, colstart=53)
+        if GPIO_BL != None:
+            self.backLight = PWMOut(GPIO_BL, frequency=PWM_FREQ, duty_cycle = DIM_VALUE)
+        self.Buttons = []
+        if xButtonPin != None:
+            self.xButton = DigitalInOut(xButtonPin)
+            self.xButton.direction = Direction.INPUT
+            self.xButton.pull = Pull.UP
+            self.Buttons.append(self.xButton)
+        if yButtonPin != None:
+            self.yButton = DigitalInOut(yButtonPin)
+            self.yButton.direction = Direction.INPUT
+            self.yButton.pull = Pull.UP
+            self.Buttons.append(self.yButton)
+        if aButtonPin != None:
+            self.aButton = DigitalInOut(aButtonPin)
+            self.aButton.direction = Direction.INPUT
+            self.aButton.pull = Pull.UP
+            self.Buttons.append(self.aButton)
+        if bButtonPin != None:
+            self.bButton = DigitalInOut(bButtonPin)
+            self.bButton.direction = Direction.INPUT
+            self.bButton.pull = Pull.UP
+            self.Buttons.append(self.bButton)
 
-        self.xButton = DigitalInOut(xButtonPin)
-        self.xButton.direction = Direction.INPUT
-        self.xButton.pull = Pull.UP
-        self.yButton = DigitalInOut(yButtonPin)
-        self.yButton.direction = Direction.INPUT
-        self.yButton.pull = Pull.UP
-
-        # IF YOU WANT TO WIRE THEM UP
-        # self.aButton = DigitalInOut(aButtonPin)
-        # self.aButton.direction = Direction.INPUT
-        # self.aButton.pull = Pull.UP
-        # self.bButton = DigitalInOut(bButtonPin)
-        # self.bButton.direction = Direction.INPUT
-        # self.bButton.pull = Pull.UP
-
-        self.Buttons = [ self.xButton, self.yButton ]
-        self.TimeDown = [-1] * DISPLAY_BUTTON_COUNT
-        self.TimeUp = [-1] * DISPLAY_BUTTON_COUNT
-        self.Waiting = [False] * DISPLAY_BUTTON_COUNT
-        self.ButtonStates = [ self.TimeDown, self.TimeUp, self.Waiting ]
+        if len(self.Buttons) > 0:
+            self.TimeDown = [-1] * DISPLAY_BUTTON_COUNT
+            self.TimeUp = [-1] * DISPLAY_BUTTON_COUNT
+            self.Waiting = [False] * DISPLAY_BUTTON_COUNT
+            self.ButtonStates = [ self.TimeDown, self.TimeUp, self.Waiting ]
 
     def printInfo():
         print("==============================")
@@ -95,6 +111,20 @@ class PicoDisplay():
         print(" -- " + adafruit_st7789.__name__ + " version: " + adafruit_st7789.__version__ + " -- ")
         print("==============================")
 
+    def convertScale(self, value, originMin=0, originMax=100, destinationMin=0, destinationMax=DIM_VALUE):
+        originSpan = originMax - originMin
+        destinationSpan = destinationMax - destinationMin
+        scaledValue = float(value - originMin) / float(originSpan)
+        return destinationMin + (scaledValue * destinationSpan)
+
+    def setBacklightPercent(self, percent):
+        if self.backLight != None:
+            self.backLight.duty_cycle = int(self.convertScale(percent))
+
+    def createPalette(self, colour):
+        palette = displayio.Palette(1)
+        palette[0] = colour
+        return palette
 
     def getImage(self, fileReference, imagePalette=None, top=0, right=0):
         bitmap, palette = adafruit_imageload.load(fileReference,
@@ -115,17 +145,27 @@ class PicoDisplay():
     def createGroup(self, max=10):
         return displayio.Group(max_size=max)
 
+    def simpleRectangle(self, width, height):
+        rect = displayio.Bitmap(height, width, 1) # I have swapped order because that's how I think
+        return rect
+
+    def createTileGrid(self, top, right, rectangle, colour,):
+        palette = displayio.Palette(1)
+        palette[0] = colour
+        return displayio.TileGrid(rectangle, pixel_shader=palette, x=top, y=right)
+
     def createRectangle(self, top, right, width, height, colour):
         rect = displayio.Bitmap(height, width, 1) # I have swapped order because that's how I think
         palette = displayio.Palette(1)
         palette[0] = colour
         return displayio.TileGrid(rect, pixel_shader=palette, x=top, y=right)
 
+
     def render(self, spriteGroup, rotation):
         self.display.rotation = rotation
         self.display.show(spriteGroup)
 
-    def createText(self, xCoord, yCoord, displayText, fontColour):
+    def createText(self, displayText, fontColour, xCoord, yCoord):
         text_group = displayio.Group(max_size=12, scale=4, x=xCoord, y=yCoord)
         text_group.append(label.Label(terminalio.FONT, text=displayText, color=fontColour))
         return text_group
@@ -133,13 +173,10 @@ class PicoDisplay():
     # ------------ Custom Wallpapers ------------
 
     def createRainbow(self):
-        RAINBOW = [COLOUR_RED, COLOUR_ORANGE, COLOUR_YELLOW, COLOUR_GREEN, COLOUR_BLUE, COLOUR_INDIGO, COLOUR_VIOLET ]
-        size = int(SCREEN_WIDTH / len(RAINBOW))
+        size = int(self.SCREEN_WIDTH / len(RAINBOW))
         box = self.createGroup()
         for index in range(len(RAINBOW)):
-            box.append(self.createRectangle(0, index * size,size, SCREEN_HEIGHT, RAINBOW[index]))
-
-        box.append(self.createText(40, 40, "Welcome", COLOUR_BLACK))
+            box.append(self.createRectangle(0, index * size,size, self.SCREEN_HEIGHT, RAINBOW[index]))
         return box
 
     def getAndroid(self):
@@ -152,11 +189,11 @@ class PicoDisplay():
         palette[2] = COLOUR_WHITE
         image = self.getImage("images/android.bmp", palette, 0, 20)
 
-        backdrop = self.createRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, backgroundColour)
+        backdrop = self.createRectangle(0, 0, self.SCREEN_WIDTH, self.SCREEN_HEIGHT, backgroundColour)
 
         group.append(backdrop)
         group.append(image)
-        group.append(self.createText(60, 40, "Android", COLOUR_WHITE))
+        group.append(self.createText("Android", COLOUR_WHITE, 60, 40))
         return group
 
     def getTeams(self):
@@ -168,11 +205,11 @@ class PicoDisplay():
         palette[1] = COLOUR_WHITE
         image = self.getImage("images/teams.bmp", palette, 0, 10)
 
-        backdrop = self.createRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, backgroundColour)
+        backdrop = self.createRectangle(0, 0, self.SCREEN_WIDTH, self.SCREEN_HEIGHT, backgroundColour)
 
         group.append(backdrop)
         group.append(image)
-        group.append(self.createText(115, 60, "Teams", COLOUR_WHITE))
+        group.append(self.createText("Teams", COLOUR_WHITE, 115, 60))
         return group
 
     def getMidi(self):
@@ -199,13 +236,13 @@ class PicoDisplay():
         palette = displayio.Palette(2)
         palette[0] = COLOUR_BLACK
         palette[1] = foregroundColour
-        image = self.getImage("images/dota.bmp", palette, SCREEN_WIDTH - 10, 20)
+        image = self.getImage("images/dota.bmp", palette, self.SCREEN_WIDTH - 10, 20)
 
-        backdrop = self.createRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, COLOUR_BLACK)
+        backdrop = self.createRectangle(0, 0, self.SCREEN_WIDTH, self.SCREEN_HEIGHT, COLOUR_BLACK)
 
         group.append(backdrop)
         group.append(image)
-        group.append(self.createText(5, 100, "Dota", foregroundColour))
+        group.append(self.createText("Dota", foregroundColour, 5, 100))
         return group
     # -------------------------------------------
 
@@ -220,7 +257,7 @@ class PicoDisplay():
         self.display.show(splash)
 
         # BACKGROUND
-        color_bitmap = displayio.Bitmap(SCREEN_WIDTH, SCREEN_HEIGHT, 1) # HEIGHT, WIDTH swapped because we're rotated
+        color_bitmap = displayio.Bitmap(self.SCREEN_WIDTH, SCREEN_HEIGHT, 1) # HEIGHT, WIDTH swapped because we're rotated
         color_palette = displayio.Palette(1)
         color_palette[0] = COLOUR_BLACK
         bg_sprite = displayio.TileGrid(color_bitmap,
@@ -242,7 +279,7 @@ class PicoDisplay():
         splash = displayio.Group(max_size=10)
         self.display.show(splash)
 
-        color_bitmap = displayio.Bitmap(135, 240, 1)
+        color_bitmap = displayio.Bitmap(240, 240, 1)
         color_palette = displayio.Palette(1)
         color_palette[0] = 0x00FF00
 

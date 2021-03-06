@@ -15,10 +15,11 @@ from adafruit_hid.consumer_control_code import ConsumerControlCode
 
 from digitalio import DigitalInOut, Direction, Pull
 #------------------------------------
-USE_DISPLAY = False
+USE_DISPLAY = True
 if USE_DISPLAY:
     from picodisplay import *
     picoDisplay = PicoDisplay()
+    picoDisplay.setBacklightPercent(10)
     wallpapers = [ picoDisplay.getAndroid, picoDisplay.getTeams, picoDisplay.getDota ]
 #------------------------------------
 from constants import *
@@ -95,11 +96,13 @@ def checkHeldForFlash(heldDownStartMillis):
 #------------------------------------
 if USE_DISPLAY:
     rainbow = picoDisplay.createRainbow()
+    rainbow.append(picoDisplay.createText("Welcome", COLOUR_BLACK, 30, 40))
     picoDisplay.render(rainbow, 270)
 #------------------------------------
 currentKeypadConfiguration = KeypadInterface(kbd, layout, setKeyColour)
 currentKeypadConfiguration.introduce()
 #------------------------------------
+helpMode=False
 while True:
     currentKeypadConfiguration.loop()
     if USE_DISPLAY:
@@ -110,9 +113,16 @@ while True:
                                 checkHeldForFlash)
             if displayKeyIndex == 0 and buttonValue & EVENT_SINGLE_PRESS:
                 swapLayout()
+            if displayKeyIndex == 1 and buttonValue & EVENT_SINGLE_PRESS:
+                helpMode = True
+                # displayHelpMode()
 
     pressed = read_button_states(0, BUTTON_COUNT)
 
     for keyIndex in range(BUTTON_COUNT):
         event = checkButton(keyIndex, pressed[keyIndex], keypadButtonStates, checkHeldForFlash)
-        currentKeypadConfiguration.handleEvent(keyIndex, event)
+        if helpMode:
+            print(currentKeypadConfiguration.helpForKey(keyIndex))
+            helpMode = False
+        else:
+            currentKeypadConfiguration.handleEvent(keyIndex, event)
