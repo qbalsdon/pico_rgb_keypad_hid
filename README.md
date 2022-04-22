@@ -47,7 +47,7 @@ If you want to see an example of what the keypad behaviours should do, please us
 ## Installation
 
 1. Do a basic installation
-1. Copy all my python scripts, including `code.py` to the `CIRCUITPY/` directory
+1. Copy all my python scripts, including `code.py` to the `CIRCUITPY/` directory (i.e. copy the lib and keyconfig folders as they are. I consider everything with a .py file type to be a script)
 1. Put your custom keypad configurations into the `CIRCUITPY/keyconfig` directory
 1. Choose which configurations you want in [line 32][LINE32] of `code.py`
 1. Assign a method for triggering the `swapLayout()` method. This could be a `EVENT_EXTRA_LONG_PRESS` of a certain key. I have opted to enable a different button entirely, wired to the screen I have attached.
