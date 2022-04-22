@@ -1,3 +1,9 @@
+# DEPRECATED: This project is no longer maintained
+
+I'm sorry to drop this on anyone excited for updates, but I no longer have the capacity to maintain this project. The reasons for this are:
+1. There are newer Pico boards with screens built in that would serve better in this scenario for the screen stuff. 
+2. I have turned to the dark side of QMK development for keyboards: It's far more mature and maintained a lot better. One benefit is proper management of multiple key presses and double press management, as well as having a much more fleshed out perpective of keyboard layering.
+
 # PICO rgb HID keypad
 
 ### All files are in the repository because I know they work. I have also reference the authors so that updates may be located should this repository fall behind
